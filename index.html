@@ -67,7 +67,7 @@
                         <span class="text-sm font-semibold text-slate-800 block">🔀 Husselen</span>
                         <span class="text-xs text-slate-400">In willekeurige volgorde</span>
                     </div>
-                    <input id="optie-hussel" type="checkbox" class="w-5 h-5 accent-indigo-600">
+                    <input id="optie-hussel" type="checkbox" checked class="w-5 h-5 accent-indigo-600">
                 </label>
 
                 <label id="optie-omgekeerd-rij" class="flex items-center justify-between gap-3 p-4 rounded-2xl bg-white border border-slate-200">
@@ -283,7 +283,7 @@
             try {
                 localStorage.setItem(OPSLAG_SLEUTEL, JSON.stringify({
                     bestanden: geselecteerdeBestanden(),
-                    hussel: document.getElementById('optie-hussel').checked,
+                    willekeurig: document.getElementById('optie-hussel').checked,
                     omgekeerd: document.getElementById('optie-omgekeerd').checked,
                     modus
                 }));
@@ -322,7 +322,7 @@
             const keuze = leesKeuze();
             const gekozen = keuze?.bestanden ?? [BESCHIKBARE_BESTANDEN[0]?.bestand];
             if (keuze) {
-                document.getElementById('optie-hussel').checked = !!keuze.hussel;
+                document.getElementById('optie-hussel').checked = keuze.willekeurig ?? true;
                 document.getElementById('optie-omgekeerd').checked = !!keuze.omgekeerd;
                 if (keuze.modus === 'vervoegen') modus = 'vervoegen';
             }
