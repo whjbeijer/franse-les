@@ -39,8 +39,12 @@
         <header class="bg-indigo-600 text-white safe-top shrink-0">
             <div class="max-w-lg mx-auto px-5 pb-6 pt-2">
                 <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">Stap 1 van 2</p>
-                <h1 class="text-2xl font-extrabold mt-1">Kies je hoofdstukken</h1>
-                <p class="text-indigo-100 text-sm mt-1">Vink aan wat je wilt oefenen.</p>
+                <h1 class="text-2xl font-extrabold mt-1">Wat wil je oefenen?</h1>
+                <div class="mt-4 grid grid-cols-2 gap-1 bg-indigo-800/40 p-1 rounded-2xl text-sm font-semibold">
+                    <button id="modus-woordjes" onclick="kiesModus('woordjes')" class="modus-knop py-2.5 rounded-xl transition">📇 Woordjes</button>
+                    <button id="modus-vervoegen" onclick="kiesModus('vervoegen')" class="modus-knop py-2.5 rounded-xl transition">✍️ Vervoegingen</button>
+                </div>
+                <p id="modus-uitleg" class="text-indigo-100 text-sm mt-3"></p>
             </div>
         </header>
 
@@ -61,12 +65,12 @@
                 <label class="flex items-center justify-between gap-3 p-4 mt-2 rounded-2xl bg-white border border-slate-200">
                     <div>
                         <span class="text-sm font-semibold text-slate-800 block">🔀 Husselen</span>
-                        <span class="text-xs text-slate-400">Kaarten in willekeurige volgorde</span>
+                        <span class="text-xs text-slate-400">In willekeurige volgorde</span>
                     </div>
                     <input id="optie-hussel" type="checkbox" class="w-5 h-5 accent-indigo-600">
                 </label>
 
-                <label class="flex items-center justify-between gap-3 p-4 rounded-2xl bg-white border border-slate-200">
+                <label id="optie-omgekeerd-rij" class="flex items-center justify-between gap-3 p-4 rounded-2xl bg-white border border-slate-200">
                     <div>
                         <span class="text-sm font-semibold text-slate-800 block">🇳🇱 Nederlands eerst</span>
                         <span class="text-xs text-slate-400">Toon de Nederlandse kant als voorkant</span>
@@ -80,7 +84,7 @@
             <div class="max-w-lg mx-auto px-4 pt-3">
                 <button id="start-knop" onclick="startOefenen()" disabled
                     class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-md active:scale-[0.98] transition disabled:bg-slate-300 disabled:shadow-none">
-                    Start met oefenen (<span id="start-aantal">0</span> kaarten) →
+                    Start met oefenen (<span id="start-aantal">0</span> <span id="start-eenheid">kaarten</span>) →
                 </button>
             </div>
         </footer>
@@ -147,12 +151,68 @@
         </footer>
     </section>
 
+    <!-- =====================================================================
+         STAP 2 (VERVOEGINGEN): WERKWOORD + GEVRAAGDE VORM
+         ===================================================================== -->
+    <section id="stap-vervoegen" class="stap verborgen fixed inset-0 flex flex-col bg-slate-100">
+        <header class="safe-top shrink-0 px-3">
+            <div class="max-w-lg mx-auto flex items-center justify-between gap-2 pb-2">
+                <button onclick="terugNaarHoofdstukken()" class="flex items-center gap-1 text-indigo-600 font-semibold text-sm py-2 px-2 rounded-xl active:bg-slate-200">
+                    ← Hoofdstukken
+                </button>
+                <div class="text-sm font-bold text-slate-600 tabular-nums">
+                    <span id="vv-current">0</span> / <span id="vv-total">0</span>
+                </div>
+                <div class="text-sm font-bold tabular-nums text-emerald-600 px-2" title="Goed beantwoord">
+                    ✓ <span id="vv-score">0</span>/<span id="vv-gevraagd">0</span>
+                </div>
+            </div>
+            <div class="max-w-lg mx-auto h-1 bg-slate-200 rounded-full overflow-hidden">
+                <div id="vv-voortgang" class="h-full bg-indigo-500 transition-all duration-300" style="width:0%"></div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto">
+            <div class="max-w-lg mx-auto px-3 pt-3 pb-4">
+                <div class="bg-white rounded-3xl shadow-xl border border-slate-200/80 p-5 text-center">
+                    <span id="vv-bron" class="text-xs font-medium text-slate-400 bg-slate-100 px-3 py-1 rounded-full"></span>
+                    <div class="mt-4 flex items-center justify-center gap-2">
+                        <h2 id="vv-inf" class="text-3xl font-bold text-slate-900 break-words"></h2>
+                        <button onclick="speekTekst(huidigWerkwoord().inf)" class="w-9 h-9 rounded-xl active:bg-slate-200 text-lg shrink-0" title="Luister">🔊</button>
+                    </div>
+                    <p id="vv-nl" class="text-slate-500 mt-1"></p>
+
+                    <div class="mt-5 pt-5 border-t border-slate-100">
+                        <p class="text-xs font-bold uppercase tracking-widest text-indigo-500">Vervoeg in de présent</p>
+                        <div class="mt-3 flex items-center justify-center gap-2 text-2xl font-bold">
+                            <span id="vv-persoon" class="text-indigo-600"></span>
+                            <input id="vv-invoer" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                   enterkeyhint="go" placeholder="…"
+                                   class="select-text w-full max-w-[14rem] text-xl font-semibold border-b-2 border-indigo-300 focus:border-indigo-600 outline-none bg-transparent py-1 px-1 text-slate-900">
+                        </div>
+                        <div id="vv-accenten" class="mt-4 flex flex-wrap justify-center gap-1.5"></div>
+                        <div id="vv-feedback" class="hidden mt-4 rounded-2xl p-3 text-left"></div>
+                        <table id="vv-tabel" class="hidden mt-3 mx-auto text-left text-sm"></table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="shrink-0 safe-bottom px-3">
+            <div class="max-w-lg mx-auto pt-3 grid grid-cols-2 gap-2">
+                <button id="vv-toon" onclick="toonAntwoord()" class="py-3 rounded-2xl bg-white border border-slate-200 text-slate-600 font-semibold active:scale-95 transition">Toon antwoord</button>
+                <button id="vv-actie" onclick="vervoegActie()" class="py-3 rounded-2xl bg-indigo-600 text-white font-semibold active:scale-95 transition">Controleer</button>
+            </div>
+        </footer>
+    </section>
+
     <script>
         // =========================================================================
         // CONFIGURATIE: Zet hier de namen van jouw .txt bestanden in GitHub!
         // Formaat per regel:  frans - nederlands
         // =========================================================================
         const BESCHIKBARE_BESTANDEN = [
+            { naam: "Basiswerkwoorden", bestand: "woorden/basiswerkwoorden.txt" },
             { naam: "Boek 2 - Unité 0", bestand: "woorden/unite-0.txt" },
             { naam: "Boek 2 - Unité 1", bestand: "woorden/unite-1.txt" },
             { naam: "Boek 2 - Unité 1A", bestand: "woorden/unite-1a.txt" },
@@ -192,6 +252,8 @@
         let huidigeIndex = 0;
         let isGedraaid = false;
         let omgekeerd = false;
+        let modus = 'woordjes';      // 'woordjes' of 'vervoegen'
+        let vervoegingen = {};       // bestand -> [{inf, nl, je, v:{je,tu,il,nous,vous,ils}}]
 
         // ---------------------------------------------------------------------
         // Hulpfuncties
@@ -222,7 +284,8 @@
                 localStorage.setItem(OPSLAG_SLEUTEL, JSON.stringify({
                     bestanden: geselecteerdeBestanden(),
                     hussel: document.getElementById('optie-hussel').checked,
-                    omgekeerd: document.getElementById('optie-omgekeerd').checked
+                    omgekeerd: document.getElementById('optie-omgekeerd').checked,
+                    modus
                 }));
             } catch { /* opslag niet beschikbaar */ }
         }
@@ -230,8 +293,15 @@
         // ---------------------------------------------------------------------
         // STAP 1: hoofdstukken laden en tonen
         // ---------------------------------------------------------------------
+        async function laadVervoegingen() {
+            try {
+                const res = await fetch(`woorden/vervoegingen.json?t=${Date.now()}`);
+                if (res.ok) vervoegingen = await res.json();
+            } catch (err) { console.warn(err.message); }
+        }
+
         async function laadAlleHoofdstukken() {
-            await Promise.all(BESCHIKBARE_BESTANDEN.map(async item => {
+            await Promise.all([laadVervoegingen(), ...BESCHIKBARE_BESTANDEN.map(async item => {
                 try {
                     const res = await fetch(`${item.bestand}?t=${Date.now()}`);
                     if (!res.ok) throw new Error(`Kan ${item.bestand} niet vinden`);
@@ -244,7 +314,7 @@
                     console.warn(err.message);
                     hoofdstukWoorden[item.bestand] = null;
                 }
-            }));
+            })]);
             toonHoofdstukken();
         }
 
@@ -254,6 +324,7 @@
             if (keuze) {
                 document.getElementById('optie-hussel').checked = !!keuze.hussel;
                 document.getElementById('optie-omgekeerd').checked = !!keuze.omgekeerd;
+                if (keuze.modus === 'vervoegen') modus = 'vervoegen';
             }
 
             const lijst = document.getElementById('hoofdstuk-lijst');
@@ -270,11 +341,43 @@
                                onchange="wijzigSelectie()" class="w-6 h-6 accent-indigo-600 shrink-0">
                         <div class="flex-1 min-w-0">
                             <span class="font-semibold text-slate-800 block">${escapeHtml(item.naam)}</span>
-                            <span class="text-xs text-slate-400">${fout ? 'Bestand niet gevonden' : aantal + ' woorden'}</span>
+                            <span class="aantal text-xs text-slate-400" data-fout="${fout ? 1 : ''}"
+                                  data-woorden="${aantal}" data-ww="${(vervoegingen[item.bestand] || []).length}"></span>
                         </div>
                     </label>`;
             }).join('');
+            kiesModus(modus);
+        }
+
+        // Wissel tussen woordjes en vervoegingen; past aantallen en opties aan
+        function kiesModus(nieuw) {
+            modus = nieuw;
+            const vv = modus === 'vervoegen';
+            document.querySelectorAll('.modus-knop').forEach(k => {
+                const aan = k.id === (vv ? 'modus-vervoegen' : 'modus-woordjes');
+                k.classList.toggle('bg-white', aan);
+                k.classList.toggle('text-indigo-700', aan);
+                k.classList.toggle('shadow', aan);
+                k.classList.toggle('text-indigo-100', !aan);
+            });
+            document.getElementById('modus-uitleg').textContent = vv
+                ? 'Kies de hoofdstukken waarvan je de werkwoorden wilt vervoegen.'
+                : 'Kies de hoofdstukken waarvan je de woordjes wilt leren.';
+            document.getElementById('optie-omgekeerd-rij').classList.toggle('hidden', vv);
+            document.querySelectorAll('#hoofdstuk-lijst .aantal').forEach(el => {
+                const label = el.closest('label');
+                if (el.dataset.fout) { el.textContent = 'Bestand niet gevonden'; return; }
+                const n = Number(vv ? el.dataset.ww : el.dataset.woorden);
+                el.textContent = vv ? `${n} werkwoord${n === 1 ? '' : 'en'}` : `${n} woorden`;
+                label.classList.toggle('opacity-50', n === 0);
+            });
             wijzigSelectie();
+        }
+
+        function aantalIn(bestand) {
+            return modus === 'vervoegen'
+                ? (vervoegingen[bestand] || []).length
+                : (hoofdstukWoorden[bestand]?.length || 0);
         }
 
         function geselecteerdeBestanden() {
@@ -289,8 +392,10 @@
                 label.classList.toggle('border-transparent', !aan);
                 label.classList.toggle('shadow-sm', !aan);
             });
-            const totaal = geselecteerdeBestanden().reduce((n, b) => n + (hoofdstukWoorden[b]?.length || 0), 0);
+            const totaal = geselecteerdeBestanden().reduce((n, b) => n + aantalIn(b), 0);
             document.getElementById('start-aantal').textContent = totaal;
+            document.getElementById('start-eenheid').textContent =
+                modus === 'vervoegen' ? (totaal === 1 ? 'werkwoord' : 'werkwoorden') : 'kaarten';
             document.getElementById('start-knop').disabled = totaal === 0;
         }
 
@@ -305,9 +410,11 @@
         function toonStap(stap) {
             document.getElementById('stap-hoofdstukken').classList.toggle('verborgen', stap !== 1);
             document.getElementById('stap-kaarten').classList.toggle('verborgen', stap !== 2);
+            document.getElementById('stap-vervoegen').classList.toggle('verborgen', stap !== 3);
         }
 
         function startOefenen() {
+            if (modus === 'vervoegen') { startVervoegen(); return; }
             actieveWoorden = geselecteerdeBestanden().flatMap(b => hoofdstukWoorden[b] || []);
             if (actieveWoorden.length === 0) return;
             omgekeerd = document.getElementById('optie-omgekeerd').checked;
@@ -320,7 +427,10 @@
             document.getElementById('fc-back-label').textContent = omgekeerd ? 'Frans' : 'Nederlands';
             toonKaart();
             toonStap(2);
+            naarVolledigScherm();
+        }
 
+        function naarVolledigScherm() {
             // Zodat de terugknop van de telefoon naar stap 1 gaat
             if (history.state?.stap !== 2) history.pushState({ stap: 2 }, '');
 
@@ -400,16 +510,198 @@
         const gaNaarVorige = () => wisselKaart(-1);
 
         function speekFrans() {
-            if (actieveWoorden.length === 0 || !('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel();
+            if (actieveWoorden.length === 0) return;
             // Grammaticale aanduidingen zoals (f), (m pl) of (inf être) niet uitspreken
-            const tekst = actieveWoorden[huidigeIndex].fr
+            speekTekst(actieveWoorden[huidigeIndex].fr
                 .replace(/\((?:f|m|m\/f|f pl|m pl|spr|pl [^)]*|inf [^)]*)\)/g, '')
-                .replace(/\s+/g, ' ').trim();
+                .replace(/\s+/g, ' ').trim());
+        }
+
+        function speekTekst(tekst) {
+            if (!tekst || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
             const u = new SpeechSynthesisUtterance(tekst);
             u.lang = 'fr-FR';
             window.speechSynthesis.speak(u);
         }
+
+        // ---------------------------------------------------------------------
+        // STAP 2 (VERVOEGINGEN)
+        // ---------------------------------------------------------------------
+        // Gevraagde persoon -> sleutel in de vervoegingsdata (il = elle, ils = elles)
+        const PERSONEN = [
+            { label: 'je', sleutel: 'je' }, { label: 'tu', sleutel: 'tu' },
+            { label: 'il', sleutel: 'il' }, { label: 'elle', sleutel: 'il' },
+            { label: 'nous', sleutel: 'nous' }, { label: 'vous', sleutel: 'vous' },
+            { label: 'ils', sleutel: 'ils' }, { label: 'elles', sleutel: 'ils' }
+        ];
+        const TABEL = [['je', 'je'], ['tu', 'tu'], ['il/elle', 'il'], ['nous', 'nous'], ['vous', 'vous'], ['ils/elles', 'ils']];
+        const ACCENTEN = ['é', 'è', 'ê', 'à', 'â', 'ç', 'î', 'ï', 'ô', 'û', 'ù', 'œ', "'"];
+
+        let werkwoorden = [];
+        let wwIndex = 0;
+        let gevraagd = null;     // { label, sleutel }
+        let beantwoord = false;
+        let score = 0, aantalGevraagd = 0;
+
+        function huidigWerkwoord() { return werkwoorden[wwIndex]; }
+
+        // Onderwerp zoals het voor de vorm staat: "je", "j'", "tu", ...
+        function onderwerp(ww, p) {
+            return p.sleutel === 'je' ? ww.je : p.label;
+        }
+        function volledig(ww, p, vorm) {
+            const o = onderwerp(ww, p);
+            return o.endsWith("'") ? o + vorm : o + ' ' + vorm;
+        }
+
+        function startVervoegen() {
+            werkwoorden = geselecteerdeBestanden().flatMap(b => {
+                const naam = BESCHIKBARE_BESTANDEN.find(i => i.bestand === b)?.naam || '';
+                return (vervoegingen[b] || []).map(w => ({ ...w, bron: naam }));
+            });
+            if (werkwoorden.length === 0) return;
+            if (document.getElementById('optie-hussel').checked) schud(werkwoorden);
+            bewaarKeuze();
+            wwIndex = 0; score = 0; aantalGevraagd = 0;
+            document.getElementById('vv-total').textContent = werkwoorden.length;
+            toonWerkwoord();
+            toonStap(3);
+            naarVolledigScherm();
+        }
+
+        function toonWerkwoord() {
+            const ww = huidigWerkwoord();
+            gevraagd = PERSONEN[Math.floor(Math.random() * PERSONEN.length)];
+            beantwoord = false;
+
+            document.getElementById('vv-current').textContent = wwIndex + 1;
+            document.getElementById('vv-score').textContent = score;
+            document.getElementById('vv-gevraagd').textContent = aantalGevraagd;
+            document.getElementById('vv-voortgang').style.width = ((wwIndex + 1) / werkwoorden.length * 100) + '%';
+            document.getElementById('vv-bron').textContent = ww.bron;
+            document.getElementById('vv-inf').textContent = ww.inf;
+            document.getElementById('vv-nl').textContent = ww.nl;
+            document.getElementById('vv-persoon').textContent = onderwerp(ww, gevraagd);
+
+            const invoer = document.getElementById('vv-invoer');
+            invoer.value = '';
+            invoer.disabled = false;
+            invoer.className = invoer.className.replace(/border-(emerald|rose|amber)-500/g, 'border-indigo-300');
+            document.getElementById('vv-feedback').classList.add('hidden');
+            document.getElementById('vv-tabel').classList.add('hidden');
+            document.getElementById('vv-accenten').classList.remove('hidden');
+            document.getElementById('vv-toon').disabled = false;
+            document.getElementById('vv-toon').classList.remove('opacity-40');
+            document.getElementById('vv-actie').textContent = 'Controleer';
+            if (!window.matchMedia('(pointer: coarse)').matches) invoer.focus();
+        }
+
+        function normaliseer(t) {
+            return t.toLowerCase().replace(/[’‘`´]/g, "'").replace(/\s+/g, ' ').replace(/\s*'\s*/g, "'").trim();
+        }
+        function zonderAccenten(t) {
+            return t.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/œ/g, 'oe');
+        }
+
+        // Vergelijkt het antwoord; het onderwerp mag er ook bij getypt zijn
+        function beoordeel(antwoord) {
+            const ww = huidigWerkwoord();
+            const goed = ww.v[gevraagd.sleutel].map(normaliseer);
+            let a = normaliseer(antwoord);
+            const o = normaliseer(onderwerp(ww, gevraagd));
+            const kandidaten = [a];
+            if (a.startsWith(o.endsWith("'") ? o : o + ' ')) kandidaten.push(a.slice(o.endsWith("'") ? o.length : o.length + 1));
+            if (gevraagd.sleutel === 'je' && a.startsWith('je ')) kandidaten.push(a.slice(3));
+            if (gevraagd.sleutel === 'je' && a.startsWith("j'")) kandidaten.push(a.slice(2));
+            if (kandidaten.some(k => goed.includes(k))) return 'goed';
+            if (kandidaten.some(k => goed.map(zonderAccenten).includes(zonderAccenten(k)))) return 'accent';
+            return 'fout';
+        }
+
+        function vervoegActie() {
+            if (beantwoord) { volgendWerkwoord(); return; }
+            const invoer = document.getElementById('vv-invoer');
+            if (!invoer.value.trim()) { invoer.focus(); return; }
+            toonUitslag(beoordeel(invoer.value));
+        }
+
+        function toonAntwoord() {
+            if (!beantwoord) toonUitslag('getoond');
+        }
+
+        function toonUitslag(uitslag) {
+            const ww = huidigWerkwoord();
+            beantwoord = true;
+            aantalGevraagd++;
+            if (uitslag === 'goed') score++;
+            document.getElementById('vv-score').textContent = score;
+            document.getElementById('vv-gevraagd').textContent = aantalGevraagd;
+
+            const juist = ww.v[gevraagd.sleutel].map(v => volledig(ww, gevraagd, v)).join(' / ');
+            const stijl = {
+                goed:    ['bg-emerald-50 text-emerald-800', 'border-emerald-500', '✓ Goed!'],
+                accent:  ['bg-amber-50 text-amber-800', 'border-amber-500', '≈ Bijna, let op de accenten:'],
+                fout:    ['bg-rose-50 text-rose-800', 'border-rose-500', '✗ Helaas, het is:'],
+                getoond: ['bg-slate-100 text-slate-700', 'border-indigo-300', 'Het antwoord is:']
+            }[uitslag];
+
+            const invoer = document.getElementById('vv-invoer');
+            invoer.disabled = true;
+            invoer.className = invoer.className.replace(/border-indigo-300/g, stijl[1]);
+            invoer.blur();
+
+            const fb = document.getElementById('vv-feedback');
+            fb.className = `mt-4 rounded-2xl p-3 text-left ${stijl[0]}`;
+            fb.innerHTML = `<div class="text-sm font-semibold">${stijl[2]}</div>
+                            <div class="text-xl font-bold mt-0.5">${escapeHtml(juist)}</div>`;
+
+            const tabel = document.getElementById('vv-tabel');
+            tabel.innerHTML = TABEL.map(([label, sleutel]) => {
+                const actief = sleutel === gevraagd.sleutel;
+                const o = sleutel === 'je' ? ww.je : label;
+                return `<tr class="${actief ? 'font-bold text-indigo-700' : 'text-slate-500'}">
+                            <td class="pr-3 py-0.5 text-right">${escapeHtml(o)}</td>
+                            <td class="py-0.5">${escapeHtml(ww.v[sleutel].join(' / '))}</td>
+                        </tr>`;
+            }).join('');
+            tabel.classList.remove('hidden');
+            document.getElementById('vv-accenten').classList.add('hidden');
+            document.getElementById('vv-toon').disabled = true;
+            document.getElementById('vv-toon').classList.add('opacity-40');
+            document.getElementById('vv-actie').textContent = 'Volgende →';
+            speekTekst(volledig(ww, gevraagd, ww.v[gevraagd.sleutel][0]));
+        }
+
+        function volgendWerkwoord() {
+            wwIndex = (wwIndex + 1) % werkwoorden.length;
+            toonWerkwoord();
+        }
+
+        // Knoppen voor letters met accent (handig op een telefoon)
+        document.getElementById('vv-accenten').innerHTML = ACCENTEN.map(a =>
+            `<button type="button" data-teken="${a}" class="w-9 h-9 rounded-xl bg-slate-100 active:bg-indigo-100 text-slate-700 font-semibold">${a}</button>`
+        ).join('');
+        document.getElementById('vv-accenten').addEventListener('pointerdown', e => {
+            const knop = e.target.closest('button[data-teken]');
+            if (!knop) return;
+            e.preventDefault();   // focus in het invoerveld houden
+            const invoer = document.getElementById('vv-invoer');
+            if (invoer.disabled) return;
+            const start = invoer.selectionStart ?? invoer.value.length;
+            const eind = invoer.selectionEnd ?? invoer.value.length;
+            invoer.value = invoer.value.slice(0, start) + knop.dataset.teken + invoer.value.slice(eind);
+            invoer.focus();
+            invoer.setSelectionRange(start + 1, start + 1);
+        });
+        document.getElementById('vv-invoer').addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); vervoegActie(); }
+        });
+        document.addEventListener('keydown', e => {
+            if (document.getElementById('stap-vervoegen').classList.contains('verborgen')) return;
+            if (e.key === 'Enter' && beantwoord) { e.preventDefault(); volgendWerkwoord(); }
+            if (e.key === 'Escape') terugNaarHoofdstukken();
+        });
 
         // ---------------------------------------------------------------------
         // TOUCH / SWIPE & TAP
