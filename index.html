@@ -3,152 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Frans Leren - GitHub Woordenlijsten</title>
+    <title>Frans Leren - Flashcards</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; touch-action: manipulation; }
+        html, body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            touch-action: pan-y;
+            overscroll-behavior: none;
+            height: 100%;
+            overflow: hidden;
+        }
         .perspective-1000 { perspective: 1000px; }
         .transform-style-3d { transform-style: preserve-3d; }
         .backface-hidden { backface-visibility: hidden; }
         .rotate-y-180 { transform: rotateY(180deg); }
+        .card-transition { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-100 text-slate-800 flex flex-col h-[100dvh] select-none">
 
-    <!-- Header -->
-    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="font-bold text-lg tracking-tight flex items-center gap-2">
-                🇫🇷 Frans Leren
-            </h1>
-            <span id="word-count-badge" class="text-xs bg-indigo-700 px-2.5 py-1 rounded-full font-medium">0 woorden</span>
+    <!-- Compacte Header -->
+    <header class="bg-indigo-600 text-white shadow-sm shrink-0 z-20">
+        <div class="max-w-lg mx-auto px-4 py-3 flex justify-between items-center">
+            <button onclick="openLijstModal()" class="flex items-center gap-2 bg-indigo-700/80 hover:bg-indigo-700 active:scale-95 transition px-3 py-1.5 rounded-xl text-sm font-semibold">
+                <span>📚</span>
+                <span>Lijsten</span>
+                <span id="active-lists-count" class="bg-white text-indigo-700 text-xs font-bold px-1.5 py-0.5 rounded-md">1</span>
+            </button>
+
+            <div class="text-sm font-semibold tracking-wide">
+                <span id="fc-current">0</span> / <span id="fc-total">0</span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <button onclick="husselWoorden()" title="Hussel kaarten" class="bg-indigo-700/80 hover:bg-indigo-700 active:scale-95 transition p-2 rounded-xl text-sm">
+                    🔀
+                </button>
+                <button onclick="speekFrans()" title="Luister uitspraak" class="bg-indigo-700/80 hover:bg-indigo-700 active:scale-95 transition p-2 rounded-xl text-sm">
+                    🔊
+                </button>
+            </div>
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 max-w-md w-full mx-auto p-4 pb-24 space-y-4">
-
-        <!-- Bestandsselectie -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 space-y-2">
-            <div class="flex justify-between items-center">
-                <label class="text-xs font-bold uppercase tracking-wider text-indigo-600">Kies woordenlijsten (GitHub)</label>
-                <button onclick="selecteerAlles(true)" class="text-xs text-slate-500 hover:text-indigo-600 underline">Alles selecteren</button>
-            </div>
-            <div id="file-selector-list" class="grid grid-cols-1 gap-2 pt-1">
-                <!-- Wordt automatisch gevuld -->
-            </div>
-        </div>
-
-        <!-- TAB 1: FLASHCARDS -->
-        <div id="tab-flashcards" class="space-y-4">
-            <div class="flex justify-between items-center text-sm text-slate-500 px-1">
-                <span>Kaart <span id="fc-current">0</span> van <span id="fc-total">0</span></span>
-                <div class="flex gap-2">
-                    <button onclick="husselWoorden()" class="text-slate-600 font-medium bg-slate-200/70 px-2.5 py-1 rounded-lg hover:bg-slate-200 text-xs">
-                        🔀 Hussel
-                    </button>
-                    <button onclick="speekFrans()" class="text-indigo-600 font-medium flex items-center gap-1 hover:text-indigo-800 bg-indigo-50 px-2.5 py-1 rounded-lg text-xs">
-                        🔊 Luister
-                    </button>
-                </div>
-            </div>
-
-            <!-- Flashcard Container -->
-            <div class="perspective-1000 w-full h-64 cursor-pointer" onclick="draaiKaart()">
-                <div id="flashcard" class="relative w-full h-full duration-300 transform-style-3d shadow-xl rounded-2xl bg-white border border-slate-100">
-                    <!-- Voorkant (Frans) -->
-                    <div class="absolute inset-0 w-full h-full backface-hidden flex flex-col justify-center items-center p-6 text-center bg-gradient-to-br from-white to-indigo-50/30 rounded-2xl">
-                        <span id="fc-source-tag" class="text-[11px] font-medium text-slate-400 mb-1">...</span>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-indigo-500 mb-2">Frans</span>
-                        <h2 id="fc-front-text" class="text-3xl font-bold text-slate-900 mb-4">Vink een lijst aan</h2>
-                        <span class="text-xs text-slate-400 bg-slate-100 px-3 py-1 rounded-full">Tik om te draaien</span>
+    <!-- Fullscreen Flashcard Werkgebied -->
+    <main class="flex-1 flex flex-col max-w-lg w-full mx-auto p-4 overflow-hidden">
+        
+        <!-- Swipeable & Tappable Card Wrapper -->
+        <div id="swipe-area" class="flex-1 w-full perspective-1000 relative flex items-center justify-center">
+            <div id="flashcard" class="w-full h-full card-transition transform-style-3d shadow-xl rounded-3xl bg-white border border-slate-200/80 relative cursor-pointer">
+                
+                <!-- Voorkant (Frans) -->
+                <div class="absolute inset-0 w-full h-full backface-hidden flex flex-col justify-between items-center p-8 text-center bg-gradient-to-br from-white via-white to-indigo-50/50 rounded-3xl">
+                    <span id="fc-source-tag" class="text-xs font-medium text-slate-400 bg-slate-100 px-3 py-1 rounded-full">Laden...</span>
+                    
+                    <div class="my-auto flex flex-col items-center">
+                        <span class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-3">Frans</span>
+                        <h2 id="fc-front-text" class="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight break-words max-w-full">...</h2>
                     </div>
-                    <!-- Achterkant (Nederlands) -->
-                    <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 flex flex-col justify-center items-center p-6 text-center bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-2xl">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-indigo-200 mb-2">Nederlands</span>
-                        <h2 id="fc-back-text" class="text-3xl font-bold mb-2">...</h2>
+
+                    <div class="flex flex-col items-center gap-1 text-slate-400 text-xs">
+                        <span>Tik om te draaien</span>
+                        <span class="text-[11px] text-slate-300">← Swipe voor vorige / volgende →</span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Flashcard Controls -->
-            <div class="grid grid-cols-2 gap-3 pt-1">
-                <button onclick="event.stopPropagation(); volgendeKaart()" class="bg-red-50 text-red-600 border border-red-200 font-semibold py-3.5 rounded-xl shadow-sm active:scale-95 transition">
-                    ❌ Nog lastig
-                </button>
-                <button onclick="event.stopPropagation(); volgendeKaart()" class="bg-emerald-50 text-emerald-600 border border-emerald-200 font-semibold py-3.5 rounded-xl shadow-sm active:scale-95 transition">
-                    ✅ Ik weet hem!
-                </button>
-            </div>
-            <div class="flex justify-between">
-                <button onclick="vorigeKaart()" class="text-sm text-slate-500 hover:text-slate-800 font-medium px-2 py-1">← Vorige</button>
-                <button onclick="volgendeKaart()" class="text-sm text-slate-500 hover:text-slate-800 font-medium px-2 py-1">Volgende →</button>
-            </div>
-        </div>
-
-        <!-- TAB 2: OVERHOREN -->
-        <div id="tab-quiz" class="hidden space-y-4">
-            <div id="quiz-card-container" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
-                <div class="flex justify-between items-center text-xs font-medium text-slate-400">
-                    <span id="quiz-progress">Vraag 1 van 10</span>
-                    <span id="quiz-mode-label" class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded">Meerkeuze</span>
-                </div>
-                <div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-500">Vertaal naar Nederlands:</span>
-                    <h3 id="quiz-question" class="text-2xl font-bold text-slate-900 mt-1">...</h3>
-                </div>
-
-                <div id="quiz-mc-options" class="space-y-2 pt-2"></div>
-
-                <div id="quiz-type-container" class="hidden space-y-3 pt-2">
-                    <input type="text" id="quiz-input" placeholder="Typ je antwoord..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
-                    <div class="flex gap-1 flex-wrap">
-                        <button onclick="voegAccenttoe('é')" class="px-3 py-1 bg-slate-100 rounded-lg text-sm font-medium hover:bg-slate-200">é</button>
-                        <button onclick="voegAccenttoe('è')" class="px-3 py-1 bg-slate-100 rounded-lg text-sm font-medium hover:bg-slate-200">è</button>
-                        <button onclick="voegAccenttoe('ê')" class="px-3 py-1 bg-slate-100 rounded-lg text-sm font-medium hover:bg-slate-200">ê</button>
-                        <button onclick="voegAccenttoe('ë')" class="px-3 py-1 bg-slate-100 rounded-lg text-sm font-medium hover:bg-slate-200">ë</button>
-                        <button onclick="voegAccenttoe('ç')" class="px-3 py-1 bg-slate-100 rounded-lg text-sm font-medium hover:bg-slate-200">ç</button>
-                        <button onclick="voegAccenttoe('à')" class="px-3 py-1 bg-slate-100 rounded-lg text-sm font-medium hover:bg-slate-200">à</button>
-                        <button onclick="voegAccenttoe('ô')" class="px-3 py-1 bg-slate-100 rounded-lg text-sm font-medium hover:bg-slate-200">ô</button>
+                <!-- Achterkant (Nederlands) -->
+                <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 flex flex-col justify-between items-center p-8 text-center bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-3xl">
+                    <span class="text-xs font-medium text-indigo-200 bg-indigo-800/40 px-3 py-1 rounded-full">Vertaling</span>
+                    
+                    <div class="my-auto flex flex-col items-center">
+                        <span class="text-xs font-bold uppercase tracking-widest text-indigo-200 mb-3">Nederlands</span>
+                        <h2 id="fc-back-text" class="text-4xl sm:text-5xl font-bold leading-tight break-words max-w-full">...</h2>
                     </div>
-                    <button onclick="controleerTypAntwoord()" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl shadow hover:bg-indigo-700 transition">Controleer</button>
+
+                    <div class="text-indigo-200/80 text-xs">
+                        Tik om terug te draaien
+                    </div>
                 </div>
 
-                <div id="quiz-feedback" class="hidden p-3 rounded-xl text-sm font-medium"></div>
-                <button id="quiz-next-btn" onclick="volgendeQuizVraag()" class="hidden w-full bg-slate-900 text-white font-semibold py-3 rounded-xl shadow">Volgende vraag →</button>
             </div>
         </div>
 
-        <!-- TAB 3: OVERZICHT GELADEN WOORDEN -->
-        <div id="tab-list" class="hidden space-y-4">
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="font-bold text-slate-800 mb-2 text-sm">Actieve woorden uit geselecteerde files (<span id="word-count-label">0</span>)</h3>
-                <div id="word-list-container" class="divide-y divide-slate-100 max-h-96 overflow-y-auto text-sm"></div>
-            </div>
+        <!-- Subtiele navigatiebalk onderaan (ook handig op desktop of als alternatief) -->
+        <div class="pt-3 pb-1 flex justify-between items-center text-slate-500 text-sm shrink-0 px-2">
+            <button onclick="gaNaarVorige()" class="py-2 px-4 rounded-xl hover:bg-slate-200/70 active:scale-95 transition font-medium">
+                ← Vorige
+            </button>
+            <button onclick="speekFrans()" class="py-2 px-4 rounded-xl bg-white shadow-sm border border-slate-200 text-indigo-600 font-semibold active:scale-95 transition flex items-center gap-1.5">
+                <span>🔊</span> Uitspraak
+            </button>
+            <button onclick="gaNaarVolgende()" class="py-2 px-4 rounded-xl hover:bg-slate-200/70 active:scale-95 transition font-medium">
+                Volgende →
+            </button>
         </div>
-
     </main>
 
-    <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-50">
-        <div class="max-w-md mx-auto grid grid-cols-3 py-2">
-            <button onclick="wisselTab('flashcards')" id="nav-btn-flashcards" class="flex flex-col items-center justify-center text-indigo-600">
-                <span class="text-xl">🎴</span>
-                <span class="text-xs font-semibold mt-0.5">Flashcards</span>
-            </button>
-            <button onclick="wisselTab('quiz')" id="nav-btn-quiz" class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-600">
-                <span class="text-xl">📝</span>
-                <span class="text-xs font-medium mt-0.5">Overhoren</span>
-            </button>
-            <button onclick="wisselTab('list')" id="nav-btn-list" class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-600">
-                <span class="text-xl">📚</span>
-                <span class="text-xs font-medium mt-0.5">Woordenlijst</span>
-            </button>
+    <!-- MODAL / OVERLAY: Hoofdstukken & Woordenlijsten selecteren -->
+    <div id="lijst-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[85dvh] overflow-hidden animate-slide-up">
+            
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="font-bold text-lg text-slate-900">Kies woordenlijsten</h3>
+                    <p class="text-xs text-slate-500">Selecteer één of meerdere GitHub-bestanden</p>
+                </div>
+                <button onclick="sluitLijstModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold w-9 h-9 rounded-full flex items-center justify-center">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Modal Body (Scrollbaar) -->
+            <div class="p-5 overflow-y-auto space-y-4 flex-1">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Beschikbare bestanden</span>
+                    <div class="flex gap-3 text-xs">
+                        <button onclick="selecteerAlles(true)" class="text-indigo-600 font-semibold hover:underline">Alles</button>
+                        <button onclick="selecteerAlles(false)" class="text-slate-400 hover:underline">Geen</button>
+                    </div>
+                </div>
+
+                <div id="file-selector-list" class="space-y-2">
+                    <!-- Wordt dynamisch gevuld -->
+                </div>
+
+                <!-- Preview van geladen woorden -->
+                <div class="pt-3 border-t border-slate-100">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                        Geladen woorden (<span id="word-count-label">0</span>)
+                    </h4>
+                    <div id="word-list-container" class="divide-y divide-slate-100 text-sm max-h-48 overflow-y-auto bg-slate-50 rounded-xl px-3">
+                        <!-- Wordt dynamisch gevuld -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-slate-100 bg-slate-50 shrink-0">
+                <button onclick="sluitLijstModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-2xl shadow-md active:scale-98 transition">
+                    Start met oefenen (<span id="modal-btn-count">0</span> kaarten)
+                </button>
+            </div>
         </div>
-    </nav>
+    </div>
 
     <script>
+        // =========================================================================
+        // CONFIGURATIE: Zet hier de namen van jouw .txt bestanden in GitHub!
+        // =========================================================================
         const BESCHIKBARE_BESTANDEN = [
             { naam: "Hoofdstuk 1 - Begroetingen", bestand: "hoofdstuk1.txt" },
             { naam: "Hoofdstuk 2 - Eten & Drinken", bestand: "hoofdstuk2.txt" },
@@ -158,18 +162,24 @@
         let actieveWoorden = [];
         let huidigeIndex = 0;
         let isGedraaid = false;
-        let actieveTab = 'flashcards';
-        let quizHuidigeVraag = 0;
-        let quizScore = 0;
-        let actieveQuizLijst = [];
 
+        // Modal openen/sluiten
+        function openLijstModal() {
+            document.getElementById('lijst-modal').classList.remove('hidden');
+        }
+
+        function sluitLijstModal() {
+            document.getElementById('lijst-modal').classList.add('hidden');
+        }
+
+        // Initialiseer de bestandsselector
         function initBestandsSelector() {
             const container = document.getElementById('file-selector-list');
             container.innerHTML = '';
             BESCHIKBARE_BESTANDEN.forEach((item, index) => {
                 container.innerHTML += `
-                    <label class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition">
-                        <input type="checkbox" value="${item.bestand}" data-naam="${item.naam}" ${index === 0 ? 'checked' : ''} onchange="laadGeselecteerdeBestanden()" class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
+                    <label class="flex items-center gap-3 p-3 rounded-2xl border border-slate-200 cursor-pointer hover:bg-indigo-50/40 transition">
+                        <input type="checkbox" value="${item.bestand}" data-naam="${item.naam}" ${index === 0 ? 'checked' : ''} onchange="laadGeselecteerdeBestanden()" class="w-5 h-5 text-indigo-600 rounded-md focus:ring-indigo-500">
                         <div class="flex-1">
                             <span class="text-sm font-semibold text-slate-800 block">${item.naam}</span>
                             <span class="text-[11px] text-slate-400 font-mono">${item.bestand}</span>
@@ -185,8 +195,10 @@
             laadGeselecteerdeBestanden();
         }
 
+        // Haal aangevinkte bestanden live op uit GitHub
         async function laadGeselecteerdeBestanden() {
             const checkboxes = document.querySelectorAll('#file-selector-list input[type="checkbox"]:checked');
+            document.getElementById('active-lists-count').textContent = checkboxes.length;
             actieveWoorden = [];
 
             for (const cb of checkboxes) {
@@ -214,28 +226,26 @@
 
             huidigeIndex = 0;
             updateUI();
-            if (actieveTab === 'quiz') startQuiz();
         }
 
         function updateUI() {
             document.getElementById('fc-total').textContent = actieveWoorden.length;
             document.getElementById('word-count-label').textContent = actieveWoorden.length;
-            document.getElementById('word-count-badge').textContent = `${actieveWoorden.length} woorden`;
+            document.getElementById('modal-btn-count').textContent = actieveWoorden.length;
 
             const container = document.getElementById('word-list-container');
             container.innerHTML = '';
             if (actieveWoorden.length === 0) {
-                container.innerHTML = `<p class="text-slate-400 py-4 text-center">Geen woorden geladen. Zorg dat de .txt bestanden in GitHub staan.</p>`;
+                container.innerHTML = `<p class="text-slate-400 py-4 text-center text-xs">Geen woorden geladen. Vink een lijst aan.</p>`;
             } else {
                 actieveWoorden.forEach(w => {
                     container.innerHTML += `
-                        <div class="py-2.5 flex justify-between items-center">
-                            <div>
+                        <div class="py-2 flex justify-between items-center gap-2">
+                            <div class="truncate">
                                 <strong class="text-slate-900">${w.fr}</strong> 
-                                <span class="text-slate-400 mx-1">/</span> 
+                                <span class="text-slate-400 mx-1">-</span> 
                                 <span class="text-slate-600">${w.nl}</span>
                             </div>
-                            <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">${w.bron}</span>
                         </div>
                     `;
                 });
@@ -244,19 +254,26 @@
         }
 
         function husselWoorden() {
+            if (actieveWoorden.length < 2) return;
             actieveWoorden.sort(() => Math.random() - 0.5);
             huidigeIndex = 0;
             toonKaart();
         }
 
         function toonKaart() {
+            const card = document.getElementById('flashcard');
+            isGedraaid = false;
+            card.style.transform = '';
+            card.classList.remove('rotate-y-180');
+
             if (actieveWoorden.length === 0) {
                 document.getElementById('fc-current').textContent = "0";
-                document.getElementById('fc-source-tag').textContent = "";
-                document.getElementById('fc-front-text').textContent = "Geen lijst gekozen";
-                document.getElementById('fc-back-text').textContent = "Vink bovenaan een lijst aan";
+                document.getElementById('fc-source-tag').textContent = "Geen lijst";
+                document.getElementById('fc-front-text').textContent = "Kies een lijst";
+                document.getElementById('fc-back-text').textContent = "Tik linksboven op 'Lijsten'";
                 return;
             }
+
             if (huidigeIndex >= actieveWoorden.length) huidigeIndex = 0;
             if (huidigeIndex < 0) huidigeIndex = actieveWoorden.length - 1;
 
@@ -264,165 +281,137 @@
             document.getElementById('fc-source-tag').textContent = actieveWoorden[huidigeIndex].bron;
             document.getElementById('fc-front-text').textContent = actieveWoorden[huidigeIndex].fr;
             document.getElementById('fc-back-text').textContent = actieveWoorden[huidigeIndex].nl;
-            
-            isGedraaid = false;
-            document.getElementById('flashcard').classList.remove('rotate-y-180');
         }
 
         function draaiKaart() {
-            if (actieveWoorden.length === 0) return;
+            if (actieveWoorden.length === 0) {
+                openLijstModal();
+                return;
+            }
             isGedraaid = !isGedraaid;
-            document.getElementById('flashcard').classList.toggle('rotate-y-180', isGedraaid);
+            const card = document.getElementById('flashcard');
+            card.style.transform = isGedraaid ? 'rotateY(180deg)' : 'rotateY(0deg)';
         }
 
-        function volgendeKaart() {
+        function gaNaarVolgende() {
             if (actieveWoorden.length === 0) return;
-            huidigeIndex = (huidigeIndex + 1) % actieveWoorden.length;
-            toonKaart();
+            const card = document.getElementById('flashcard');
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(-40px)';
+            setTimeout(() => {
+                huidigeIndex = (huidigeIndex + 1) % actieveWoorden.length;
+                card.style.transition = 'none';
+                card.style.transform = 'translateX(40px)';
+                toonKaart();
+                void card.offsetWidth; // force reflow
+                card.style.transition = '';
+                card.style.opacity = '1';
+                card.style.transform = '';
+            }, 150);
         }
 
-        function vorigeKaart() {
+        function gaNaarVorige() {
             if (actieveWoorden.length === 0) return;
-            huidigeIndex = (huidigeIndex - 1 + actieveWoorden.length) % actieveWoorden.length;
-            toonKaart();
+            const card = document.getElementById('flashcard');
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(40px)';
+            setTimeout(() => {
+                huidigeIndex = (huidigeIndex - 1 + actieveWoorden.length) % actieveWoorden.length;
+                card.style.transition = 'none';
+                card.style.transform = 'translateX(-40px)';
+                toonKaart();
+                void card.offsetWidth; // force reflow
+                card.style.transition = '';
+                card.style.opacity = '1';
+                card.style.transform = '';
+            }, 150);
         }
 
         function speekFrans() {
             if (actieveWoorden.length === 0) return;
             if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(actieveWoorden[huidigeIndex].fr);
                 utterance.lang = 'fr-FR';
                 window.speechSynthesis.speak(utterance);
             }
         }
 
-        function startQuiz() {
-            const container = document.getElementById('quiz-card-container');
-            if (actieveWoorden.length < 2) {
-                container.innerHTML = `<p class="text-center text-slate-500 py-6">Vink hierboven minimaal één lijst aan met minstens 2 woorden om te kunnen overhoren.</p>`;
-                return;
+        // =========================================================================
+        // TOUCH / SWIPE & TAP DETECTIE
+        // =========================================================================
+        const swipeArea = document.getElementById('swipe-area');
+        const flashcardEl = document.getElementById('flashcard');
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchCurrentX = 0;
+        let isDragging = false;
+
+        swipeArea.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchCurrentX = touchStartX;
+            isDragging = true;
+            flashcardEl.style.transition = 'none';
+        }, { passive: true });
+
+        swipeArea.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            touchCurrentX = e.touches[0].clientX;
+            const deltaX = touchCurrentX - touchStartX;
+            const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+
+            // Alleen horizontaal meebewegen als de beweging vooral horizontaal is
+            if (Math.abs(deltaX) > 10 && Math.abs(deltaX) > deltaY) {
+                const rotateFlip = isGedraaid ? 'rotateY(180deg)' : 'rotateY(0deg)';
+                const tilt = deltaX * 0.04;
+                flashcardEl.style.transform = `translateX(${deltaX}px) rotateZ(${tilt}deg) ${rotateFlip}`;
             }
-            if (!document.getElementById('quiz-question')) {
-                location.reload();
-                return;
-            }
-            actieveQuizLijst = [...actieveWoorden].sort(() => Math.random() - 0.5);
-            quizHuidigeVraag = 0;
-            quizScore = 0;
-            toonQuizVraag();
-        }
+        }, { passive: true });
 
-        function toonQuizVraag() {
-            if (quizHuidigeVraag >= actieveQuizLijst.length) {
-                document.getElementById('quiz-card-container').innerHTML = `
-                    <div class="text-center space-y-4 py-4">
-                        <h3 class="text-2xl font-bold text-slate-900">Klaar! 🎉</h3>
-                        <p class="text-slate-600">Score: ${quizScore} van de ${actieveQuizLijst.length} goed!</p>
-                        <button onclick="laadGeselecteerdeBestanden()" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl shadow">Opnieuw oefenen</button>
-                    </div>
-                `;
-                return;
-            }
+        swipeArea.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            flashcardEl.style.transition = '';
 
-            const huidige = actieveQuizLijst[quizHuidigeVraag];
-            document.getElementById('quiz-progress').textContent = `Vraag ${quizHuidigeVraag + 1} van ${actieveQuizLijst.length}`;
-            document.getElementById('quiz-question').textContent = huidige.fr;
-            
-            const typeModus = Math.random() > 0.5 ? 'mc' : 'type';
-            const mcContainer = document.getElementById('quiz-mc-options');
-            const typeContainer = document.getElementById('quiz-type-container');
-            
-            document.getElementById('quiz-feedback').classList.add('hidden');
-            document.getElementById('quiz-next-btn').classList.add('hidden');
+            const deltaX = touchCurrentX - touchStartX;
+            const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
+            const swipeThreshold = 55; // pixels voor een geldige swipe
 
-            if (typeModus === 'mc') {
-                document.getElementById('quiz-mode-label').textContent = "Meerkeuze";
-                mcContainer.classList.remove('hidden');
-                typeContainer.classList.add('hidden');
-
-                let opties = [huidige.nl];
-                while(opties.length < 4 && opties.length < actieveWoorden.length) {
-                    const willekeurigW = actieveWoorden[Math.floor(Math.random() * actieveWoorden.length)].nl;
-                    if (!opties.includes(willekeurigW)) opties.push(willekeurigW);
+            if (Math.abs(deltaX) > swipeThreshold && Math.abs(deltaX) > deltaY) {
+                if (deltaX < 0) {
+                    gaNaarVolgende(); // Swipe naar links -> volgende kaart
+                } else {
+                    gaNaarVorige();   // Swipe naar rechts -> vorige kaart
                 }
-                opties.sort(() => Math.random() - 0.5);
-
-                mcContainer.innerHTML = '';
-                opties.forEach(optie => {
-                    const btn = document.createElement('button');
-                    btn.className = "w-full text-left px-4 py-3.5 rounded-xl border border-slate-200 hover:bg-indigo-50 font-medium transition";
-                    btn.textContent = optie;
-                    btn.onclick = () => controleerMcAntwoord(btn, optie, huidige.nl);
-                    mcContainer.appendChild(btn);
-                });
+            } else if (Math.abs(deltaX) < 12 && deltaY < 12) {
+                // Korte tik zonder te slepen -> kaart omdraaien
+                draaiKaart();
             } else {
-                document.getElementById('quiz-mode-label').textContent = "Zelf typen";
-                mcContainer.classList.add('hidden');
-                typeContainer.classList.remove('hidden');
-                document.getElementById('quiz-input').value = '';
-                document.getElementById('quiz-input').focus();
+                // Terugveren naar midden als swipe te kort was
+                flashcardEl.style.transform = isGedraaid ? 'rotateY(180deg)' : 'rotateY(0deg)';
             }
-        }
+        });
 
-        function controleerMcAntwoord(knop, gekozen, juist) {
-            const feedback = document.getElementById('quiz-feedback');
-            feedback.classList.remove('hidden');
-            
-            if (gekozen.toLowerCase().trim() === juist.toLowerCase().trim()) {
-                knop.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-800');
-                feedback.className = "p-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700";
-                feedback.textContent = "Goed zo! Correct.";
-                quizScore++;
-            } else {
-                knop.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
-                feedback.className = "p-3 rounded-xl text-sm font-medium bg-red-50 text-red-700";
-                feedback.textContent = `Niet helemaal. Het juiste antwoord is: ${juist}`;
+        // Klik-ondersteuning voor muis/desktop (zonder dubbele trigger op touch)
+        let lastTouchTime = 0;
+        swipeArea.addEventListener('touchend', () => { lastTouchTime = Date.now(); }, { passive: true });
+        flashcardEl.addEventListener('click', () => {
+            if (Date.now() - lastTouchTime < 500) return;
+            draaiKaart();
+        });
+
+        // Toetsenbord pijltjes & spatiebalk voor desktop
+        document.addEventListener('keydown', (e) => {
+            if (!document.getElementById('lijst-modal').classList.contains('hidden')) return;
+            if (e.key === 'ArrowRight') gaNaarVolgende();
+            if (e.key === 'ArrowLeft') gaNaarVorige();
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                draaiKaart();
             }
-
-            document.querySelectorAll('#quiz-mc-options button').forEach(k => k.disabled = true);
-            document.getElementById('quiz-next-btn').classList.remove('hidden');
-        }
-
-        function voegAccenttoe(teken) {
-            const input = document.getElementById('quiz-input');
-            input.value += teken;
-            input.focus();
-        }
-
-        function controleerTypAntwoord() {
-            const gekozen = document.getElementById('quiz-input').value;
-            const juist = actieveQuizLijst[quizHuidigeVraag].nl;
-            const feedback = document.getElementById('quiz-feedback');
-            feedback.classList.remove('hidden');
-
-            if (gekozen.toLowerCase().trim() === juist.toLowerCase().trim()) {
-                feedback.className = "p-3 rounded-xl text-sm font-medium bg-emerald-50 text-emerald-700";
-                feedback.textContent = "Uitstekend! Correct.";
-                quizScore++;
-            } else {
-                feedback.className = "p-3 rounded-xl text-sm font-medium bg-red-50 text-red-700";
-                feedback.textContent = `Jammer. Het juiste antwoord is: ${juist}`;
-            }
-
-            document.getElementById('quiz-type-container').classList.add('hidden');
-            document.getElementById('quiz-next-btn').classList.remove('hidden');
-        }
-
-        function volgendeQuizVraag() {
-            quizHuidigeVraag++;
-            toonQuizVraag();
-        }
-
-        function wisselTab(tabNaam) {
-            actieveTab = tabNaam;
-            ['flashcards', 'quiz', 'list'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tabNaam);
-                document.getElementById(`nav-btn-${t}`).className = t === tabNaam 
-                    ? "flex flex-col items-center justify-center text-indigo-600" 
-                    : "flex flex-col items-center justify-center text-slate-400 hover:text-slate-600";
-            });
-            if (tabNaam === 'quiz') startQuiz();
-        }
+        });
 
         initBestandsSelector();
     </script>
