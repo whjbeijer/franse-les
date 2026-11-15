@@ -253,65 +253,21 @@
         // CONFIGURATIE: Zet hier de namen van jouw .txt bestanden in GitHub!
         // Formaat per regel:  frans - nederlands
         // =========================================================================
+        // Elke unité bundelt zijn bestanden (bijv. unite-3.txt, unite-3a.txt en unite-3b.txt).
+        // Bestaat een deel niet, dan wordt het gewoon overgeslagen.
+        function unites(boek, map) {
+            return Array.from({ length: 13 }, (_, u) => ({
+                id: `${boek.replace(/\s/g, '').toLowerCase()}-u${u}`,
+                boek,
+                naam: `Unité ${u}`,
+                bestanden: ([0, 4, 8, 12].includes(u) ? [''] : ['', 'a', 'b'])
+                    .map(deel => `${map}unite-${u}${deel}.txt`)
+            }));
+        }
         const BESCHIKBARE_BESTANDEN = [
-            { naam: "Basiswerkwoorden", bestand: "woorden/basiswerkwoorden.txt" },
-            { naam: "Boek 1 - Unité 0", bestand: "woorden/boek1/unite-0.txt" },
-            { naam: "Boek 1 - Unité 1", bestand: "woorden/boek1/unite-1.txt" },
-            { naam: "Boek 1 - Unité 1A", bestand: "woorden/boek1/unite-1a.txt" },
-            { naam: "Boek 1 - Unité 1B", bestand: "woorden/boek1/unite-1b.txt" },
-            { naam: "Boek 1 - Unité 2", bestand: "woorden/boek1/unite-2.txt" },
-            { naam: "Boek 1 - Unité 2A", bestand: "woorden/boek1/unite-2a.txt" },
-            { naam: "Boek 1 - Unité 2B", bestand: "woorden/boek1/unite-2b.txt" },
-            { naam: "Boek 1 - Unité 3", bestand: "woorden/boek1/unite-3.txt" },
-            { naam: "Boek 1 - Unité 3A", bestand: "woorden/boek1/unite-3a.txt" },
-            { naam: "Boek 1 - Unité 3B", bestand: "woorden/boek1/unite-3b.txt" },
-            { naam: "Boek 1 - Unité 4", bestand: "woorden/boek1/unite-4.txt" },
-            { naam: "Boek 1 - Unité 5", bestand: "woorden/boek1/unite-5.txt" },
-            { naam: "Boek 1 - Unité 5A", bestand: "woorden/boek1/unite-5a.txt" },
-            { naam: "Boek 1 - Unité 5B", bestand: "woorden/boek1/unite-5b.txt" },
-            { naam: "Boek 1 - Unité 6", bestand: "woorden/boek1/unite-6.txt" },
-            { naam: "Boek 1 - Unité 6A", bestand: "woorden/boek1/unite-6a.txt" },
-            { naam: "Boek 1 - Unité 6B", bestand: "woorden/boek1/unite-6b.txt" },
-            { naam: "Boek 1 - Unité 7", bestand: "woorden/boek1/unite-7.txt" },
-            { naam: "Boek 1 - Unité 7A", bestand: "woorden/boek1/unite-7a.txt" },
-            { naam: "Boek 1 - Unité 7B", bestand: "woorden/boek1/unite-7b.txt" },
-            { naam: "Boek 1 - Unité 8", bestand: "woorden/boek1/unite-8.txt" },
-            { naam: "Boek 1 - Unité 9", bestand: "woorden/boek1/unite-9.txt" },
-            { naam: "Boek 1 - Unité 9A", bestand: "woorden/boek1/unite-9a.txt" },
-            { naam: "Boek 1 - Unité 9B", bestand: "woorden/boek1/unite-9b.txt" },
-            { naam: "Boek 1 - Unité 10", bestand: "woorden/boek1/unite-10.txt" },
-            { naam: "Boek 1 - Unité 10A", bestand: "woorden/boek1/unite-10a.txt" },
-            { naam: "Boek 2 - Unité 0", bestand: "woorden/unite-0.txt" },
-            { naam: "Boek 2 - Unité 1", bestand: "woorden/unite-1.txt" },
-            { naam: "Boek 2 - Unité 1A", bestand: "woorden/unite-1a.txt" },
-            { naam: "Boek 2 - Unité 1B", bestand: "woorden/unite-1b.txt" },
-            { naam: "Boek 2 - Unité 2", bestand: "woorden/unite-2.txt" },
-            { naam: "Boek 2 - Unité 2A", bestand: "woorden/unite-2a.txt" },
-            { naam: "Boek 2 - Unité 2B", bestand: "woorden/unite-2b.txt" },
-            { naam: "Boek 2 - Unité 3", bestand: "woorden/unite-3.txt" },
-            { naam: "Boek 2 - Unité 3A", bestand: "woorden/unite-3a.txt" },
-            { naam: "Boek 2 - Unité 3B", bestand: "woorden/unite-3b.txt" },
-            { naam: "Boek 2 - Unité 4", bestand: "woorden/unite-4.txt" },
-            { naam: "Boek 2 - Unité 5", bestand: "woorden/unite-5.txt" },
-            { naam: "Boek 2 - Unité 5A", bestand: "woorden/unite-5a.txt" },
-            { naam: "Boek 2 - Unité 5B", bestand: "woorden/unite-5b.txt" },
-            { naam: "Boek 2 - Unité 6", bestand: "woorden/unite-6.txt" },
-            { naam: "Boek 2 - Unité 6A", bestand: "woorden/unite-6a.txt" },
-            { naam: "Boek 2 - Unité 6B", bestand: "woorden/unite-6b.txt" },
-            { naam: "Boek 2 - Unité 7", bestand: "woorden/unite-7.txt" },
-            { naam: "Boek 2 - Unité 7A", bestand: "woorden/unite-7a.txt" },
-            { naam: "Boek 2 - Unité 7B", bestand: "woorden/unite-7b.txt" },
-            { naam: "Boek 2 - Unité 8", bestand: "woorden/unite-8.txt" },
-            { naam: "Boek 2 - Unité 9", bestand: "woorden/unite-9.txt" },
-            { naam: "Boek 2 - Unité 9A", bestand: "woorden/unite-9a.txt" },
-            { naam: "Boek 2 - Unité 9B", bestand: "woorden/unite-9b.txt" },
-            { naam: "Boek 2 - Unité 10", bestand: "woorden/unite-10.txt" },
-            { naam: "Boek 2 - Unité 10A", bestand: "woorden/unite-10a.txt" },
-            { naam: "Boek 2 - Unité 10B", bestand: "woorden/unite-10b.txt" },
-            { naam: "Boek 2 - Unité 11", bestand: "woorden/unite-11.txt" },
-            { naam: "Boek 2 - Unité 11A", bestand: "woorden/unite-11a.txt" },
-            { naam: "Boek 2 - Unité 11B", bestand: "woorden/unite-11b.txt" },
-            { naam: "Boek 2 - Unité 12", bestand: "woorden/unite-12.txt" }
+            { id: 'basis', boek: 'Extra', naam: 'Basiswerkwoorden', bestanden: ['woorden/basiswerkwoorden.txt'] },
+            ...unites('Boek 1', 'woorden/boek1/'),
+            ...unites('Boek 2', 'woorden/')
         ];
         const OPSLAG_SLEUTEL = 'franse-les-keuze';
 
@@ -350,7 +306,7 @@
         function bewaarKeuze() {
             try {
                 localStorage.setItem(OPSLAG_SLEUTEL, JSON.stringify({
-                    bestanden: geselecteerdeBestanden(),
+                    eenheden: geselecteerdeEenheden(),
                     willekeurig: document.getElementById('optie-hussel').checked,
                     omgekeerd: document.getElementById('optie-omgekeerd').checked,
                     modus
@@ -368,51 +324,75 @@
             } catch (err) { console.warn(err.message); }
         }
 
+        let eenheidWoorden = {};   // unité-id -> [{fr, nl, bron}] of null als niets gevonden
+        let eenheidWW = {};        // unité-id -> [werkwoorden]
+
+        async function laadBestand(bestand) {
+            try {
+                const res = await fetch(`${bestand}?t=${Date.now()}`);
+                if (!res.ok) return null;
+                return (await res.text()).split(/\r?\n/).map(parseRegel).filter(Boolean);
+            } catch { return null; }
+        }
+
         async function laadAlleHoofdstukken() {
-            await Promise.all([laadVervoegingen(), ...BESCHIKBARE_BESTANDEN.map(async item => {
-                try {
-                    const res = await fetch(`${item.bestand}?t=${Date.now()}`);
-                    if (!res.ok) throw new Error(`Kan ${item.bestand} niet vinden`);
-                    const tekst = await res.text();
-                    hoofdstukWoorden[item.bestand] = tekst.split(/\r?\n/)
-                        .map(parseRegel)
-                        .filter(Boolean)
-                        .map(w => ({ ...w, bron: item.naam }));
-                } catch (err) {
-                    console.warn(err.message);
-                    hoofdstukWoorden[item.bestand] = null;
-                }
-            })]);
+            const alleBestanden = [...new Set(BESCHIKBARE_BESTANDEN.flatMap(i => i.bestanden))];
+            const geladen = await Promise.all(alleBestanden.map(laadBestand));
+            alleBestanden.forEach((b, i) => hoofdstukWoorden[b] = geladen[i]);
+            await laadVervoegingen();
+
+            BESCHIKBARE_BESTANDEN.forEach(item => {
+                const bron = item.boek === 'Extra' ? item.naam : `${item.boek} · ${item.naam}`;
+                const delen = item.bestanden.map(b => hoofdstukWoorden[b]).filter(Boolean);
+                eenheidWoorden[item.id] = delen.length ? delen.flat().map(w => ({ ...w, bron })) : null;
+                const gezien = new Set();
+                eenheidWW[item.id] = item.bestanden.flatMap(b => vervoegingen[b] || [])
+                    .filter(w => !gezien.has(w.inf) && gezien.add(w.inf))
+                    .map(w => ({ ...w, bron }));
+            });
             toonHoofdstukken();
         }
 
         function toonHoofdstukken() {
             const keuze = leesKeuze();
-            const gekozen = keuze?.bestanden ?? [BESCHIKBARE_BESTANDEN[0]?.bestand];
+            let gekozen = keuze?.eenheden;
+            if (!gekozen && keuze?.bestanden) {   // oude opgeslagen keuze (per bestand) omzetten
+                gekozen = BESCHIKBARE_BESTANDEN.filter(i => i.bestanden.some(b => keuze.bestanden.includes(b))).map(i => i.id);
+            }
+            gekozen = gekozen ?? ['basis'];
             if (keuze) {
                 document.getElementById('optie-hussel').checked = keuze.willekeurig ?? true;
                 document.getElementById('optie-omgekeerd').checked = !!keuze.omgekeerd;
                 if (keuze.modus === 'vervoegen') modus = 'vervoegen';
             }
 
-            const lijst = document.getElementById('hoofdstuk-lijst');
-            lijst.innerHTML = BESCHIKBARE_BESTANDEN.map(item => {
-                const woorden = hoofdstukWoorden[item.bestand];
-                const fout = woorden === null;
-                const aantal = woorden ? woorden.length : 0;
-                const aan = !fout && gekozen.includes(item.bestand);
-                return `
+            const boeken = [...new Set(BESCHIKBARE_BESTANDEN.map(i => i.boek))];
+            document.getElementById('hoofdstuk-lijst').innerHTML = boeken.map(boek => {
+                const items = BESCHIKBARE_BESTANDEN.filter(i => i.boek === boek && eenheidWoorden[i.id] !== null);
+                if (!items.length) return '';
+                const kop = boek === 'Extra' ? '' : `
+                    <label class="flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-indigo-600 text-white cursor-pointer">
+                        <span class="font-bold">${escapeHtml(boek)}</span>
+                        <span class="flex items-center gap-2 text-sm font-semibold">
+                            Heel boek
+                            <input type="checkbox" class="boek-vak w-6 h-6" style="accent-color:#c99a2e" data-boek="${escapeHtml(boek)}"
+                                   onchange="selecteerBoek(this.dataset.boek, this.checked)">
+                        </span>
+                    </label>`;
+                return `<div class="boek-groep space-y-2.5 pt-2" data-boek="${escapeHtml(boek)}">${kop}${items.map(item => {
+                    const aan = gekozen.includes(item.id);
+                    return `
                     <label class="hoofdstuk flex items-center gap-4 p-4 rounded-2xl bg-white border-2 transition cursor-pointer
-                                  ${aan ? 'border-indigo-500 bg-indigo-50/60' : 'border-transparent shadow-sm'}
-                                  ${fout ? 'opacity-50 cursor-not-allowed' : ''}">
-                        <input type="checkbox" value="${escapeHtml(item.bestand)}" ${aan ? 'checked' : ''} ${fout ? 'disabled' : ''}
+                                  ${aan ? 'border-indigo-500 bg-indigo-50/60' : 'border-transparent shadow-sm'}">
+                        <input type="checkbox" value="${item.id}" ${aan ? 'checked' : ''}
                                onchange="wijzigSelectie()" class="w-6 h-6 accent-indigo-600 shrink-0">
                         <div class="flex-1 min-w-0">
                             <span class="font-semibold text-slate-800 block">${escapeHtml(item.naam)}</span>
-                            <span class="aantal text-xs text-slate-400" data-fout="${fout ? 1 : ''}"
-                                  data-woorden="${aantal}" data-ww="${(vervoegingen[item.bestand] || []).length}"></span>
+                            <span class="aantal text-xs text-slate-400"
+                                  data-woorden="${eenheidWoorden[item.id].length}" data-ww="${eenheidWW[item.id].length}"></span>
                         </div>
                     </label>`;
+                }).join('')}</div>`;
             }).join('');
             kiesModus(modus);
         }
@@ -434,7 +414,6 @@
             document.getElementById('optie-omgekeerd-rij').classList.toggle('hidden', vv);
             document.querySelectorAll('#hoofdstuk-lijst .aantal').forEach(el => {
                 const label = el.closest('label');
-                if (el.dataset.fout) { el.textContent = 'Bestand niet gevonden'; return; }
                 const n = Number(vv ? el.dataset.ww : el.dataset.woorden);
                 el.textContent = vv ? `${n} werkwoord${n === 1 ? '' : 'en'}` : `${n} woorden`;
                 label.classList.toggle('opacity-50', n === 0);
@@ -442,14 +421,18 @@
             wijzigSelectie();
         }
 
-        function aantalIn(bestand) {
-            return modus === 'vervoegen'
-                ? (vervoegingen[bestand] || []).length
-                : (hoofdstukWoorden[bestand]?.length || 0);
+        function geselecteerdeEenheden() {
+            return [...document.querySelectorAll('#hoofdstuk-lijst input.accent-indigo-600:checked')].map(cb => cb.value);
         }
 
-        function geselecteerdeBestanden() {
-            return [...document.querySelectorAll('#hoofdstuk-lijst input:checked')].map(cb => cb.value);
+        // Gekozen woorden of werkwoorden; een werkwoord dat in meerdere unités staat komt één keer voor
+        function gekozenWoorden() {
+            return geselecteerdeEenheden().flatMap(id => eenheidWoorden[id] || []);
+        }
+        function gekozenWerkwoorden() {
+            const gezien = new Set();
+            return geselecteerdeEenheden().flatMap(id => eenheidWW[id] || [])
+                .filter(w => !gezien.has(w.inf) && gezien.add(w.inf));
         }
 
         function wijzigSelectie() {
@@ -460,15 +443,30 @@
                 label.classList.toggle('border-transparent', !aan);
                 label.classList.toggle('shadow-sm', !aan);
             });
-            const totaal = geselecteerdeBestanden().reduce((n, b) => n + aantalIn(b), 0);
+            // Vakje "Heel boek": aan als alle unités aan staan, half als een deel aan staat
+            document.querySelectorAll('#hoofdstuk-lijst .boek-groep').forEach(groep => {
+                const vak = groep.querySelector('.boek-vak');
+                if (!vak) return;
+                const vakjes = [...groep.querySelectorAll('label.hoofdstuk input')];
+                const aantalAan = vakjes.filter(cb => cb.checked).length;
+                vak.checked = aantalAan === vakjes.length;
+                vak.indeterminate = aantalAan > 0 && aantalAan < vakjes.length;
+            });
+            const totaal = modus === 'vervoegen' ? gekozenWerkwoorden().length : gekozenWoorden().length;
             document.getElementById('start-aantal').textContent = totaal;
             document.getElementById('start-eenheid').textContent =
                 modus === 'vervoegen' ? (totaal === 1 ? 'werkwoord' : 'werkwoorden') : 'kaarten';
             document.getElementById('start-knop').disabled = totaal === 0;
         }
 
+        function selecteerBoek(boek, status) {
+            document.querySelectorAll(`#hoofdstuk-lijst .boek-groep[data-boek="${boek}"] label.hoofdstuk input`)
+                .forEach(cb => cb.checked = status);
+            wijzigSelectie();
+        }
+
         function selecteerAlles(status) {
-            document.querySelectorAll('#hoofdstuk-lijst input:not(:disabled)').forEach(cb => cb.checked = status);
+            document.querySelectorAll('#hoofdstuk-lijst label.hoofdstuk input').forEach(cb => cb.checked = status);
             wijzigSelectie();
         }
 
@@ -483,7 +481,7 @@
 
         function startOefenen() {
             if (modus === 'vervoegen') { startVervoegen(); return; }
-            actieveWoorden = geselecteerdeBestanden().flatMap(b => hoofdstukWoorden[b] || []);
+            actieveWoorden = gekozenWoorden();
             if (actieveWoorden.length === 0) return;
             omgekeerd = document.getElementById('optie-omgekeerd').checked;
             if (document.getElementById('optie-hussel').checked) schud(actieveWoorden);
@@ -625,10 +623,7 @@
         }
 
         function startVervoegen() {
-            werkwoorden = geselecteerdeBestanden().flatMap(b => {
-                const naam = BESCHIKBARE_BESTANDEN.find(i => i.bestand === b)?.naam || '';
-                return (vervoegingen[b] || []).map(w => ({ ...w, bron: naam }));
-            });
+            werkwoorden = gekozenWerkwoorden();
             if (werkwoorden.length === 0) return;
             if (document.getElementById('optie-hussel').checked) schud(werkwoorden);
             bewaarKeuze();
