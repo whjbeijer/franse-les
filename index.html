@@ -224,7 +224,7 @@
                             <input id="vv-invoer" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                                    enterkeyhint="go" placeholder="…"
                                    class="select-text w-full max-w-[14rem] text-xl font-semibold border-b-2 border-indigo-300 focus:border-indigo-600 outline-none bg-transparent py-1 px-1 text-slate-900">
-                            <button id="vv-toetsenbord" type="button" onclick="toonToetsenbord()" title="Toetsenbord openen"
+                            <button id="vv-toetsenbord" type="button" title="Toetsenbord aan/uit" aria-pressed="false"
                                     class="w-11 h-11 shrink-0 rounded-xl bg-indigo-50/60 text-indigo-600 active:scale-95 transition flex items-center justify-center">
                                 <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                     <rect x="2" y="5" width="20" height="14" rx="2.5"/>
@@ -652,10 +652,48 @@
             invoer.focus({ preventScroll: true });
         }
 
-        // Knop met toetsenbord-icoon: opent het toetsenbord met een tik (werkt altijd)
-        function toonToetsenbord() {
-            focusInvoer();
+        // ---- Toetsenbordknop: zet het schermtoetsenbord aan of uit ----
+        // Of het toetsenbord open is, leiden we af uit de zichtbare schermhoogte:
+        // die wordt flink kleiner zodra het toetsenbord verschijnt.
+        let maxHoogte = window.visualViewport?.height || window.innerHeight;
+        function toetsenbordOpen() {
+            const invoer = document.getElementById('vv-invoer');
+            if (document.activeElement !== invoer) return false;
+            const vp = window.visualViewport;
+            if (!vp || !window.matchMedia('(pointer: coarse)').matches) return true;
+            return vp.height < maxHoogte - 120;
         }
+        function werkToetsenbordKnopBij() {
+            const knop = document.getElementById('vv-toetsenbord');
+            const open = toetsenbordOpen();
+            knop.setAttribute('aria-pressed', open);
+            knop.classList.toggle('bg-indigo-600', open);
+            knop.classList.toggle('text-white', open);
+            knop.classList.toggle('bg-indigo-50/60', !open);
+            knop.classList.toggle('text-indigo-600', !open);
+        }
+        function wisselToetsenbord() {
+            const invoer = document.getElementById('vv-invoer');
+            if (toetsenbordOpen()) invoer.blur();
+            else focusInvoer();
+            setTimeout(werkToetsenbordKnopBij, 350);
+        }
+        (() => {
+            const knop = document.getElementById('vv-toetsenbord');
+            // Voorkomt dat de tik op de knop het invulveld eerst laat loslaten
+            knop.addEventListener('pointerdown', e => e.preventDefault());
+            knop.addEventListener('mousedown', e => e.preventDefault());
+            knop.addEventListener('click', wisselToetsenbord);
+            const invoer = document.getElementById('vv-invoer');
+            invoer.addEventListener('focus', () => setTimeout(werkToetsenbordKnopBij, 350));
+            invoer.addEventListener('blur', () => setTimeout(werkToetsenbordKnopBij, 50));
+            window.visualViewport?.addEventListener('resize', () => {
+                maxHoogte = Math.max(maxHoogte, window.visualViewport.height);
+                werkToetsenbordKnopBij();
+            });
+            window.addEventListener('orientationchange', () => { maxHoogte = 0; setTimeout(() => {
+                maxHoogte = window.visualViewport?.height || window.innerHeight; werkToetsenbordKnopBij(); }, 500); });
+        })();
 
         function normaliseer(t) {
             return t.toLowerCase().replace(/[’‘`´]/g, "'").replace(/\s+/g, ' ').replace(/\s*'\s*/g, "'").trim();
