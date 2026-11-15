@@ -1,6 +1,6 @@
 // Service worker: haalt alles eerst van internet (zodat je altijd de nieuwste
 // versie hebt) en valt terug op de opgeslagen kopie als je offline bent.
-const CACHE = 'frans-v1';
+const CACHE = 'frans-v2';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
