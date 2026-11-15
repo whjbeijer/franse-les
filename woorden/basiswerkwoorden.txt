@@ -38,3 +38,63 @@ recevoir - ontvangen
 envoyer - sturen
 devenir - worden
 appeler - bellen, roepen
+donner - geven
+trouver - vinden
+penser - denken
+croire - geloven
+laisser - laten
+passer - voorbijgaan, langskomen
+demander - vragen
+rester - blijven
+porter - dragen
+arriver - aankomen
+entrer - binnengaan
+rentrer - thuiskomen
+tenir - houden
+suivre - volgen
+commencer - beginnen
+finir - eindigen, afmaken
+jouer - spelen
+montrer - laten zien
+chercher - zoeken
+écouter - luisteren
+regarder - kijken
+perdre - verliezen
+courir - rennen
+mourir - sterven
+naître - geboren worden
+offrir - geven, aanbieden
+conduire - autorijden, besturen
+vendre - verkopen
+oublier - vergeten
+fermer - sluiten
+aider - helpen
+essayer - proberen
+espérer - hopen
+nager - zwemmen
+s'appeler - heten
+se lever - opstaan
+se coucher - naar bed gaan
+se réveiller - wakker worden
+s'habiller - zich aankleden
+se laver - zich wassen
+se doucher - douchen
+se reposer - uitrusten
+se promener - wandelen
+s'amuser - zich vermaken
+s'asseoir - gaan zitten
+se dépêcher - opschieten
+se souvenir - zich herinneren
+s'occuper - zorgen voor
+se sentir - zich voelen
+se trouver - zich bevinden
+s'arrêter - stoppen
+s'intéresser - zich interesseren
+se tromper - zich vergissen
+s'excuser - zich verontschuldigen
+se marier - trouwen
+s'ennuyer - zich vervelen
+se maquiller - zich opmaken
+s'inquiéter - zich zorgen maken
+se brosser - (zich) borstelen
+s'endormir - in slaap vallen
