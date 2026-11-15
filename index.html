@@ -472,8 +472,9 @@
             // Echt full screen waar de browser dat toestaat (o.a. Android)
             const el = document.documentElement;
             if (window.matchMedia('(pointer: coarse)').matches && el.requestFullscreen && !document.fullscreenElement) {
-                el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+                return el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
             }
+            return Promise.resolve();
         }
 
         function terugNaarHoofdstukken() {
@@ -600,9 +601,10 @@
             bewaarKeuze();
             wwIndex = 0; score = 0; aantalGevraagd = 0;
             document.getElementById('vv-total').textContent = werkwoorden.length;
-            toonWerkwoord();
             toonStap(3);
-            naarVolledigScherm();
+            toonWerkwoord();
+            // Na het wisselen naar full screen nogmaals focussen, zodat het toetsenbord open blijft
+            naarVolledigScherm().then(focusInvoer);
         }
 
         function toonWerkwoord() {
@@ -629,7 +631,15 @@
             document.getElementById('vv-toon').disabled = false;
             document.getElementById('vv-toon').classList.remove('opacity-40');
             document.getElementById('vv-actie').textContent = 'Controleer';
-            if (!window.matchMedia('(pointer: coarse)').matches) invoer.focus();
+            focusInvoer();
+        }
+
+        // Zet de cursor in het invoerveld zodat het toetsenbord direct opent.
+        // Dit gebeurt binnen de tik op Start/Volgende; anders opent een telefoon het toetsenbord niet.
+        function focusInvoer() {
+            const invoer = document.getElementById('vv-invoer');
+            if (beantwoord || invoer.disabled) return;
+            invoer.focus({ preventScroll: true });
         }
 
         function normaliseer(t) {
