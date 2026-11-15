@@ -140,7 +140,6 @@
                 </div>
                 <div class="flex items-center gap-1">
                     <button onclick="husselWoorden()" title="Hussel kaarten" class="w-10 h-10 rounded-xl active:bg-slate-200 text-lg">🔀</button>
-                    <button onclick="speekFrans()" title="Luister uitspraak" class="w-10 h-10 rounded-xl active:bg-slate-200 text-lg">🔊</button>
                 </div>
             </div>
             <div class="max-w-lg mx-auto h-1 bg-slate-200 rounded-full overflow-hidden">
@@ -157,7 +156,11 @@
                     <div class="absolute inset-0 backface-hidden flex flex-col justify-between items-center p-6 text-center kaart-voor bg-gradient-to-br from-white via-white to-indigo-50 border border-slate-200/80 rounded-3xl">
                         <span id="fc-source-tag" class="text-xs font-medium text-slate-400 bg-slate-100 px-3 py-1 rounded-full max-w-full truncate"></span>
                         <div class="my-auto flex flex-col items-center w-full">
-                            <span id="fc-front-label" class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">Frans</span>
+                            <div class="flex items-center gap-1.5 mb-4">
+                                <span id="fc-front-label" class="text-xs font-bold uppercase tracking-widest text-indigo-500">Frans</span>
+                                <button type="button" data-spreek="voor" title="Luister uitspraak" aria-label="Luister uitspraak"
+                                        class="spreek-knop hidden w-9 h-9 -my-2 rounded-full bg-indigo-50/60 active:bg-slate-200 text-base flex items-center justify-center">🔊</button>
+                            </div>
                             <h2 id="fc-front-text" class="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight break-words max-w-full"></h2>
                         </div>
                         <span class="text-slate-400 text-xs">Tik om te draaien · swipe voor volgende</span>
@@ -167,7 +170,11 @@
                     <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col justify-between items-center p-6 text-center kaart-achter bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-3xl">
                         <span class="text-xs font-medium text-indigo-200 bg-indigo-800/40 px-3 py-1 rounded-full">Vertaling</span>
                         <div class="my-auto flex flex-col items-center w-full">
-                            <span id="fc-back-label" class="text-xs font-bold uppercase tracking-widest text-indigo-200 mb-4">Nederlands</span>
+                            <div class="flex items-center gap-1.5 mb-4">
+                                <span id="fc-back-label" class="text-xs font-bold uppercase tracking-widest text-indigo-200">Nederlands</span>
+                                <button type="button" data-spreek="achter" title="Luister uitspraak" aria-label="Luister uitspraak"
+                                        class="spreek-knop hidden w-9 h-9 -my-2 rounded-full bg-white/15 active:bg-white/30 text-base flex items-center justify-center">🔊</button>
+                            </div>
                             <h2 id="fc-back-text" class="text-4xl sm:text-5xl font-bold leading-tight break-words max-w-full"></h2>
                         </div>
                         <span class="text-indigo-200/80 text-xs">Tik om terug te draaien</span>
@@ -491,6 +498,8 @@
             document.getElementById('fc-total').textContent = actieveWoorden.length;
             document.getElementById('fc-front-label').textContent = omgekeerd ? 'Nederlands' : 'Frans';
             document.getElementById('fc-back-label').textContent = omgekeerd ? 'Frans' : 'Nederlands';
+            document.querySelector('[data-spreek="voor"]').classList.toggle('hidden', omgekeerd);
+            document.querySelector('[data-spreek="achter"]').classList.toggle('hidden', !omgekeerd);
             toonKaart();
             toonStap(2);
             naarVolledigScherm();
@@ -820,6 +829,14 @@
         const swipeArea = document.getElementById('swipe-area');
         const flashcardEl = document.getElementById('flashcard');
         let startX = 0, startY = 0, huidigX = 0, slepen = false, lastTouchTime = 0;
+
+        // Luidspreker op de kaart: spreekt uit zonder de kaart te draaien
+        document.querySelectorAll('.spreek-knop').forEach(k => {
+            ['touchstart', 'touchend', 'pointerdown', 'mousedown'].forEach(t =>
+                k.addEventListener(t, e => e.stopPropagation(), { passive: true }));
+            k.addEventListener('touchend', e => { e.preventDefault(); lastTouchTime = Date.now(); speekFrans(); }, { passive: false });
+            k.addEventListener('click', e => { e.stopPropagation(); if (Date.now() - lastTouchTime > 500) speekFrans(); });
+        });
 
         swipeArea.addEventListener('touchstart', e => {
             if (e.touches.length > 1) return;
