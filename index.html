@@ -653,46 +653,37 @@
         }
 
         // ---- Toetsenbordknop: zet het schermtoetsenbord aan of uit ----
-        // Of het toetsenbord open is, leiden we af uit de zichtbare schermhoogte:
-        // die wordt flink kleiner zodra het toetsenbord verschijnt.
-        let maxHoogte = window.visualViewport?.height || window.innerHeight;
-        function toetsenbordOpen() {
-            const invoer = document.getElementById('vv-invoer');
-            if (document.activeElement !== invoer) return false;
-            const vp = window.visualViewport;
-            if (!vp || !window.matchMedia('(pointer: coarse)').matches) return true;
-            return vp.height < maxHoogte - 120;
-        }
+        // Het toetsenbord is open zolang het invulveld focus heeft. De knop mag die
+        // focus niet afpakken, anders lijkt een tik op "uit" op "aan". Daarom
+        // blokkeren we de standaard aanraak-afhandeling en schakelen we zelf bij het loslaten.
         function werkToetsenbordKnopBij() {
             const knop = document.getElementById('vv-toetsenbord');
-            const open = toetsenbordOpen();
+            const open = document.activeElement === document.getElementById('vv-invoer');
             knop.setAttribute('aria-pressed', open);
             knop.classList.toggle('bg-indigo-600', open);
             knop.classList.toggle('text-white', open);
             knop.classList.toggle('bg-indigo-50/60', !open);
             knop.classList.toggle('text-indigo-600', !open);
         }
-        function wisselToetsenbord() {
-            const invoer = document.getElementById('vv-invoer');
-            if (toetsenbordOpen()) invoer.blur();
-            else focusInvoer();
-            setTimeout(werkToetsenbordKnopBij, 350);
-        }
         (() => {
             const knop = document.getElementById('vv-toetsenbord');
-            // Voorkomt dat de tik op de knop het invulveld eerst laat loslaten
-            knop.addEventListener('pointerdown', e => e.preventDefault());
-            knop.addEventListener('mousedown', e => e.preventDefault());
-            knop.addEventListener('click', wisselToetsenbord);
             const invoer = document.getElementById('vv-invoer');
-            invoer.addEventListener('focus', () => setTimeout(werkToetsenbordKnopBij, 350));
-            invoer.addEventListener('blur', () => setTimeout(werkToetsenbordKnopBij, 50));
-            window.visualViewport?.addEventListener('resize', () => {
-                maxHoogte = Math.max(maxHoogte, window.visualViewport.height);
+            let wasOpen = false;
+            knop.addEventListener('pointerdown', e => {
+                wasOpen = document.activeElement === invoer;
+                e.preventDefault();
+            });
+            // Op telefoons: voorkomt dat het veld de focus verliest door de tik
+            knop.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+            knop.addEventListener('mousedown', e => e.preventDefault());
+            knop.addEventListener('pointerup', e => {
+                e.preventDefault();
+                if (wasOpen) invoer.blur();
+                else focusInvoer();
                 werkToetsenbordKnopBij();
             });
-            window.addEventListener('orientationchange', () => { maxHoogte = 0; setTimeout(() => {
-                maxHoogte = window.visualViewport?.height || window.innerHeight; werkToetsenbordKnopBij(); }, 500); });
+            invoer.addEventListener('focus', werkToetsenbordKnopBij);
+            invoer.addEventListener('blur', werkToetsenbordKnopBij);
         })();
 
         function normaliseer(t) {
