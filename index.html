@@ -8,6 +8,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#6c5a9e">
     <title>Frans Leren - Flashcards</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-title" content="Frans">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <style>
@@ -890,6 +894,11 @@
         });
 
         laadAlleHoofdstukken();
+
+        // Nodig om de app op het beginscherm te kunnen zetten en offline te gebruiken
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+        }
     </script>
 </body>
 </html>
