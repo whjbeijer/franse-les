@@ -1,5 +1,5 @@
 """Maakt woorden/vervoegingen.json: de présent-vervoegingen van de werkwoorden
-die in de woordenlijsten staan.
+die in de woordenlijsten staan (woorden/*.txt en woorden/boek1/*.txt).
 
 Gebruik:  pip install verbecc  &&  python3 tools/maak_vervoegingen.py
 """
@@ -65,36 +65,62 @@ def werkwoord_uit(frans):
     return woorden[0], wederkerend
 
 
+def werkwoord_uit_inf(frans):
+    """Voor regels als 'écoutez (inf écouter)': geeft (inf, wederkerend, vorm) of None.
+    Voltooide deelwoorden (met '/') en vragen worden overgeslagen."""
+    m = re.search(r'\(inf ([^)]+)\)', frans)
+    if not m:
+        return None
+    vorm = frans[:m.start()].strip()
+    if not vorm or '/' in vorm or '?' in vorm or '.' in vorm:
+        return None
+    ww = werkwoord_uit(m.group(1).strip())
+    if not ww:
+        return None
+    inf, wederkerend = ww
+    if re.search(r'-vous\b', vorm):      # entraînez-vous -> s'entraîner
+        wederkerend = True
+    return inf, wederkerend, vorm
+
+
+def maak_item(inf, wederkerend, nl):
+    res = presens(inf)
+    if not res:
+        return None
+    vormen, elisie = res
+    vormen = {p: list(v) for p, v in vormen.items()}
+    if wederkerend:
+        for p in PERSONEN:
+            vol, kort = WEDERKEREND[p]
+            vormen[p] = [kort + v if elisie and kort != vol else vol + ' ' + v for v in vormen[p]]
+        elisie = False  # 'je me...' / 'je m'...' : onderwerp elideert niet
+        weergave = ('se ' if inf[0] not in 'aeiouéèêh' else "s'") + inf
+    else:
+        weergave = inf
+    return {'inf': weergave, 'nl': nl, 'je': "j'" if elisie else 'je', 'v': vormen}
+
+
 uitvoer = {}
-for pad in sorted(glob.glob(os.path.join(MAP, '*.txt'))):
+bestanden = sorted(glob.glob(os.path.join(MAP, '*.txt'))) + sorted(glob.glob(os.path.join(MAP, 'boek1', '*.txt')))
+for pad in bestanden:
+    regels = [[d.strip() for d in r.split(' - ', 1)]
+              for r in open(pad, encoding='utf-8') if ' - ' in r]
     lijst, gezien = [], set()
-    for regel in open(pad, encoding='utf-8'):
-        if ' - ' not in regel:
-            continue
-        frans, nl = [d.strip() for d in regel.split(' - ', 1)]
+    # Eerst de gewone infinitieven, daarna (alleen Boek 1) vervoegde vormen met "(inf ...)"
+    for frans, nl in regels:
         ww = werkwoord_uit(frans)
-        if not ww:
-            continue
-        inf, wederkerend = ww
-        res = presens(inf)
-        if not res:
-            continue
-        vormen, elisie = res
-        vormen = {p: list(v) for p, v in vormen.items()}
-        if wederkerend:
-            for p in PERSONEN:
-                vol, kort = WEDERKEREND[p]
-                vormen[p] = [(kort if elisie and kort != vol else vol + ' ') + v
-                             if not (elisie and kort != vol) else kort + v for v in vormen[p]]
-            elisie = False  # 'je me...' / 'je m'...' : onderwerp elideert niet
-            weergave = ('se ' if not inf[0] in 'aeiouéèêh' else "s'") + inf
-        else:
-            weergave = inf
-        if weergave in gezien:
-            continue
-        gezien.add(weergave)
-        lijst.append({'inf': weergave, 'nl': nl, 'je': "j'" if elisie else 'je', 'v': vormen})
-    uitvoer['woorden/' + os.path.basename(pad)] = lijst
+        item = ww and maak_item(ww[0], ww[1], nl)
+        if item and item['inf'] not in gezien:
+            gezien.add(item['inf'])
+            lijst.append(item)
+    if os.sep + 'boek1' + os.sep in pad:
+        for frans, nl in regels:
+            ww = werkwoord_uit_inf(frans)
+            item = ww and maak_item(ww[0], ww[1], f'{nl} ({ww[2]})')
+            if item and item['inf'] not in gezien:
+                gezien.add(item['inf'])
+                lijst.append(item)
+    uitvoer[os.path.relpath(pad, os.path.join(MAP, '..')).replace(os.sep, '/')] = lijst
 
 with open(os.path.join(MAP, 'vervoegingen.json'), 'w', encoding='utf-8') as f:
     json.dump(uitvoer, f, ensure_ascii=False, separators=(',', ':'))
