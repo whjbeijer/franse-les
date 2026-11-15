@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="nl" data-thema="provence">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#6c5a9e">
     <title>Frans Leren - Flashcards</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <style>
         html, body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -28,6 +28,41 @@
         .stap.verborgen { opacity: 0; pointer-events: none; transform: translateY(12px); }
         #stap-kaarten { touch-action: none; }
         #stap-hoofdstukken { touch-action: pan-y; }
+
+        /* ================================================================
+           THEMA: Provence (html[data-thema="provence"])
+           Het thema zet een paar kleuren; de regels daaronder passen ze toe.
+           ================================================================ */
+        html[data-thema="provence"] {
+            --hoofd: #6c5a9e; --hoofd-donker: #4f4080; --accent: #c99a2e;
+            --licht: #f1edf8; --rand: #d8cfe9; --achtergrond: #f7f4ee;
+            --kaart: #fffdf8; --kop-font: 'Cormorant Garamond', serif;
+        }
+
+        html[data-thema] body, html[data-thema] .scherm { background-color: var(--achtergrond); }
+        html[data-thema] h1, html[data-thema] h2 { font-family: var(--kop-font); letter-spacing: 0; }
+        html[data-thema] .bg-indigo-600 { background-color: var(--hoofd); }
+        html[data-thema] .bg-indigo-500 { background-color: var(--accent); }
+        html[data-thema] .bg-indigo-800\/40 { background-color: rgb(0 0 0 / 0.22); }
+        html[data-thema] .text-indigo-600, html[data-thema] .text-indigo-700 { color: var(--hoofd); }
+        html[data-thema] .text-indigo-500 { color: var(--accent); }
+        html[data-thema] .text-indigo-100, html[data-thema] .text-indigo-200 { color: rgb(255 255 255 / 0.8); }
+        html[data-thema] .border-indigo-500, html[data-thema] .border-indigo-600 { border-color: var(--hoofd); }
+        html[data-thema] .border-indigo-300 { border-color: var(--rand); }
+        html[data-thema] .focus\:border-indigo-600:focus { border-color: var(--hoofd); }
+        html[data-thema] .bg-indigo-50\/60 { background-color: var(--licht); }
+        html[data-thema] .active\:bg-indigo-100:active { background-color: var(--licht); }
+        html[data-thema] .accent-indigo-600 { accent-color: var(--hoofd); }
+        html[data-thema] .kaart-voor { background: var(--kaart); border-color: var(--rand); }
+        html[data-thema] .kaart-achter { background: linear-gradient(135deg, var(--hoofd), var(--hoofd-donker)); }
+        html[data-thema] #fc-front-text, html[data-thema] #fc-back-text, html[data-thema] #vv-inf { font-family: var(--kop-font); }
+
+
+        /* Provence: lavendel met een zonnebloemgele lijn en een zacht verloop */
+        html[data-thema="provence"] .kop-balk { background: linear-gradient(160deg, #7d6bb0, #5b4b8c); border-bottom: 5px solid #c99a2e; }
+        html[data-thema="provence"] .kaart-achter { background: linear-gradient(150deg, #8270b8, #574887); }
+        html[data-thema="provence"] h1, html[data-thema="provence"] h2 { font-weight: 700; }
+        html[data-thema="provence"] #fc-front-text, html[data-thema="provence"] #fc-back-text, html[data-thema="provence"] #vv-inf { font-size: 2.6rem; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 select-none">
@@ -35,8 +70,8 @@
     <!-- =====================================================================
          STAP 1: HOOFDSTUKKEN KIEZEN
          ===================================================================== -->
-    <section id="stap-hoofdstukken" class="stap fixed inset-0 flex flex-col">
-        <header class="bg-indigo-600 text-white safe-top shrink-0">
+    <section id="stap-hoofdstukken" class="scherm stap fixed inset-0 flex flex-col">
+        <header class="kop-balk bg-indigo-600 text-white safe-top shrink-0">
             <div class="max-w-lg mx-auto px-5 pb-6 pt-2">
                 <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">Stap 1 van 2</p>
                 <h1 class="text-2xl font-extrabold mt-1">Wat wil je oefenen?</h1>
@@ -93,7 +128,7 @@
     <!-- =====================================================================
          STAP 2: FULL SCREEN KAARTEN
          ===================================================================== -->
-    <section id="stap-kaarten" class="stap verborgen fixed inset-0 flex flex-col bg-slate-100">
+    <section id="stap-kaarten" class="scherm stap verborgen fixed inset-0 flex flex-col bg-slate-100">
         <!-- Compacte bovenbalk -->
         <header class="safe-top shrink-0 px-3">
             <div class="max-w-lg mx-auto flex items-center justify-between gap-2 pb-2">
@@ -119,7 +154,7 @@
                 <div id="flashcard" class="w-full h-full card-transition transform-style-3d shadow-xl rounded-3xl relative cursor-pointer">
 
                     <!-- Voorkant -->
-                    <div class="absolute inset-0 backface-hidden flex flex-col justify-between items-center p-6 text-center bg-gradient-to-br from-white via-white to-indigo-50 border border-slate-200/80 rounded-3xl">
+                    <div class="absolute inset-0 backface-hidden flex flex-col justify-between items-center p-6 text-center kaart-voor bg-gradient-to-br from-white via-white to-indigo-50 border border-slate-200/80 rounded-3xl">
                         <span id="fc-source-tag" class="text-xs font-medium text-slate-400 bg-slate-100 px-3 py-1 rounded-full max-w-full truncate"></span>
                         <div class="my-auto flex flex-col items-center w-full">
                             <span id="fc-front-label" class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">Frans</span>
@@ -129,7 +164,7 @@
                     </div>
 
                     <!-- Achterkant -->
-                    <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col justify-between items-center p-6 text-center bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-3xl">
+                    <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col justify-between items-center p-6 text-center kaart-achter bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-3xl">
                         <span class="text-xs font-medium text-indigo-200 bg-indigo-800/40 px-3 py-1 rounded-full">Vertaling</span>
                         <div class="my-auto flex flex-col items-center w-full">
                             <span id="fc-back-label" class="text-xs font-bold uppercase tracking-widest text-indigo-200 mb-4">Nederlands</span>
@@ -154,7 +189,7 @@
     <!-- =====================================================================
          STAP 2 (VERVOEGINGEN): WERKWOORD + GEVRAAGDE VORM
          ===================================================================== -->
-    <section id="stap-vervoegen" class="stap verborgen fixed inset-0 flex flex-col bg-slate-100">
+    <section id="stap-vervoegen" class="scherm stap verborgen fixed inset-0 flex flex-col bg-slate-100">
         <header class="safe-top shrink-0 px-3">
             <div class="max-w-lg mx-auto flex items-center justify-between gap-2 pb-2">
                 <button onclick="terugNaarHoofdstukken()" class="flex items-center gap-1 text-indigo-600 font-semibold text-sm py-2 px-2 rounded-xl active:bg-slate-200">
@@ -174,7 +209,7 @@
 
         <main class="flex-1 overflow-y-auto">
             <div class="max-w-lg mx-auto px-3 pt-3 pb-4">
-                <div class="bg-white rounded-3xl shadow-xl border border-slate-200/80 p-5 text-center">
+                <div class="kaart-voor bg-white rounded-3xl shadow-xl border border-slate-200/80 p-5 text-center">
                     <span id="vv-bron" class="text-xs font-medium text-slate-400 bg-slate-100 px-3 py-1 rounded-full"></span>
                     <div class="mt-4 flex items-center justify-center gap-2">
                         <h2 id="vv-inf" class="text-3xl font-bold text-slate-900 break-words"></h2>
