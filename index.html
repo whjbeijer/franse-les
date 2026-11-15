@@ -224,6 +224,13 @@
                             <input id="vv-invoer" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                                    enterkeyhint="go" placeholder="…"
                                    class="select-text w-full max-w-[14rem] text-xl font-semibold border-b-2 border-indigo-300 focus:border-indigo-600 outline-none bg-transparent py-1 px-1 text-slate-900">
+                            <button id="vv-toetsenbord" type="button" onclick="toonToetsenbord()" title="Toetsenbord openen"
+                                    class="w-11 h-11 shrink-0 rounded-xl bg-indigo-50/60 text-indigo-600 active:scale-95 transition flex items-center justify-center">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="2" y="5" width="20" height="14" rx="2.5"/>
+                                    <path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12.5h.01M10 12.5h.01M14 12.5h.01M18 12.5h.01M7.5 16h9"/>
+                                </svg>
+                            </button>
                         </div>
                         <div id="vv-accenten" class="mt-4 flex flex-wrap justify-center gap-1.5"></div>
                         <div id="vv-feedback" class="hidden mt-4 rounded-2xl p-3 text-left"></div>
@@ -628,6 +635,7 @@
             document.getElementById('vv-feedback').classList.add('hidden');
             document.getElementById('vv-tabel').classList.add('hidden');
             document.getElementById('vv-accenten').classList.remove('hidden');
+            document.getElementById('vv-toetsenbord').classList.remove('invisible');
             document.getElementById('vv-toon').disabled = false;
             document.getElementById('vv-toon').classList.remove('opacity-40');
             document.getElementById('vv-actie').textContent = 'Controleer';
@@ -639,7 +647,14 @@
         function focusInvoer() {
             const invoer = document.getElementById('vv-invoer');
             if (beantwoord || invoer.disabled) return;
+            // Een veld dat al focus heeft opent het toetsenbord niet opnieuw; eerst loslaten
+            if (document.activeElement === invoer) invoer.blur();
             invoer.focus({ preventScroll: true });
+        }
+
+        // Knop met toetsenbord-icoon: opent het toetsenbord met een tik (werkt altijd)
+        function toonToetsenbord() {
+            focusInvoer();
         }
 
         function normaliseer(t) {
@@ -712,6 +727,7 @@
             }).join('');
             tabel.classList.remove('hidden');
             document.getElementById('vv-accenten').classList.add('hidden');
+            document.getElementById('vv-toetsenbord').classList.add('invisible');
             document.getElementById('vv-toon').disabled = true;
             document.getElementById('vv-toon').classList.add('opacity-40');
             document.getElementById('vv-actie').textContent = 'Volgende →';
