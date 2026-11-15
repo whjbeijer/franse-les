@@ -256,7 +256,7 @@
         // Elke unité bundelt zijn bestanden (bijv. unite-3.txt, unite-3a.txt en unite-3b.txt).
         // Bestaat een deel niet, dan wordt het gewoon overgeslagen.
         function unites(boek, map) {
-            return Array.from({ length: 13 }, (_, u) => ({
+            return Array.from({ length: 12 }, (_, i) => i + 1).map(u => ({
                 id: `${boek.replace(/\s/g, '').toLowerCase()}-u${u}`,
                 boek,
                 naam: `Unité ${u}`,
