@@ -82,9 +82,10 @@
             <div class="max-w-lg mx-auto px-5 pb-6 pt-2">
                 <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">Stap 1 van 2</p>
                 <h1 class="text-2xl font-extrabold mt-1">Wat wil je oefenen?</h1>
-                <div class="mt-4 grid grid-cols-2 gap-1 bg-indigo-800/40 p-1 rounded-2xl text-sm font-semibold">
+                <div class="mt-4 grid grid-cols-3 gap-1 bg-indigo-800/40 p-1 rounded-2xl text-[13px] font-semibold">
                     <button id="modus-woordjes" onclick="kiesModus('woordjes')" class="modus-knop py-2.5 rounded-xl transition">📇 Woordjes</button>
-                    <button id="modus-vervoegen" onclick="kiesModus('vervoegen')" class="modus-knop py-2.5 rounded-xl transition">✍️ Vervoegingen</button>
+                    <button id="modus-vervoegen" onclick="kiesModus('vervoegen')" class="modus-knop py-2.5 rounded-xl transition">✍️ Vervoegen</button>
+                    <button id="modus-bezittelijk" onclick="kiesModus('bezittelijk')" class="modus-knop py-2.5 rounded-xl transition">👤 Bezittelijk</button>
                 </div>
                 <p id="modus-uitleg" class="text-indigo-100 text-sm mt-3"></p>
             </div>
@@ -101,7 +102,21 @@
                     </div>
                     <input id="optie-omgekeerd" type="checkbox" class="hidden">
                 </div>
-                <div class="flex justify-between items-center px-1">
+                <div id="bezit-uitleg" class="hidden p-4 rounded-2xl bg-white border border-slate-200 text-sm text-slate-600 space-y-2">
+                    <p class="font-semibold text-slate-800">Bezittelijke voornaamwoorden</p>
+                    <p>Je ziet een Frans woord, bijvoorbeeld <b>la maison</b>, met daaronder een vraag als <b>zijn huis</b>. Op de achterkant staat het antwoord: <b>sa maison</b>.</p>
+                    <table class="text-xs text-slate-500 mt-1">
+                        <tr><td class="pr-3"></td><td class="pr-3 font-semibold">m</td><td class="pr-3 font-semibold">v</td><td class="font-semibold">mv</td></tr>
+                        <tr><td class="pr-3">mijn</td><td class="pr-3">mon</td><td class="pr-3">ma</td><td>mes</td></tr>
+                        <tr><td class="pr-3">jouw</td><td class="pr-3">ton</td><td class="pr-3">ta</td><td>tes</td></tr>
+                        <tr><td class="pr-3">zijn/haar</td><td class="pr-3">son</td><td class="pr-3">sa</td><td>ses</td></tr>
+                        <tr><td class="pr-3">ons/onze</td><td class="pr-3" colspan="2">notre</td><td>nos</td></tr>
+                        <tr><td class="pr-3">jullie/uw</td><td class="pr-3" colspan="2">votre</td><td>vos</td></tr>
+                        <tr><td class="pr-3">hun</td><td class="pr-3" colspan="2">leur</td><td>leurs</td></tr>
+                    </table>
+                    <p class="text-xs text-slate-500">Let op: voor een vrouwelijk woord met een klinker gebruik je <b>mon, ton, son</b>: <i>mon amie</i>.</p>
+                </div>
+                <div id="hoofdstukken-kop" class="flex justify-between items-center px-1">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Hoofdstukken</span>
                     <div class="flex gap-4 text-sm">
                         <button onclick="selecteerAlles(true)" class="text-indigo-600 font-semibold">Alles</button>
@@ -129,7 +144,7 @@
                     class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-md active:scale-[0.98] transition disabled:bg-slate-300 disabled:shadow-none">
                     Start met oefenen (<span id="start-aantal">0</span> <span id="start-eenheid">kaarten</span>) →
                 </button>
-                <p class="text-center text-[11px] text-slate-400 mt-1.5">Versie 15-11 · swipen bij vervoegen</p>
+                <p class="text-center text-[11px] text-slate-400 mt-1.5">Versie 18-11 · bezittelijke voornaamwoorden</p>
             </div>
         </footer>
     </section>
@@ -171,6 +186,7 @@
                                         class="spreek-knop hidden w-9 h-9 -my-2 rounded-full bg-indigo-50/60 active:bg-slate-200 text-base flex items-center justify-center">🔊</button>
                             </div>
                             <h2 id="fc-front-text" class="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight break-words max-w-full"></h2>
+                            <p id="fc-vraag" class="hidden mt-6 text-2xl font-semibold text-indigo-600"></p>
                         </div>
                         <span class="text-slate-400 text-xs">Tik om te draaien · swipe voor volgende</span>
                     </div>
@@ -185,6 +201,7 @@
                                         class="spreek-knop hidden w-9 h-9 -my-2 rounded-full bg-white/15 active:bg-white/30 text-base flex items-center justify-center">🔊</button>
                             </div>
                             <h2 id="fc-back-text" class="text-4xl sm:text-5xl font-bold leading-tight break-words max-w-full"></h2>
+                            <p id="fc-achter-vraag" class="hidden mt-4 text-lg text-indigo-100"></p>
                         </div>
                         <span class="text-indigo-200/80 text-xs">Tik om terug te draaien</span>
                     </div>
@@ -385,7 +402,7 @@
             if (keuze) {
                 document.getElementById('optie-hussel').checked = keuze.willekeurig ?? true;
                 document.getElementById('optie-omgekeerd').checked = !!keuze.omgekeerd;
-                if (keuze.modus === 'vervoegen') modus = 'vervoegen';
+                if (['vervoegen', 'bezittelijk'].includes(keuze.modus)) modus = keuze.modus;
             }
 
             const boeken = [...new Set(BESCHIKBARE_BESTANDEN.map(i => i.boek))];
@@ -423,18 +440,22 @@
         // Wissel tussen woordjes en vervoegingen; past aantallen en opties aan
         function kiesModus(nieuw) {
             modus = nieuw;
-            const vv = modus === 'vervoegen';
+            const vv = modus === 'vervoegen', bz = modus === 'bezittelijk';
             document.querySelectorAll('.modus-knop').forEach(k => {
-                const aan = k.id === (vv ? 'modus-vervoegen' : 'modus-woordjes');
+                const aan = k.id === `modus-${modus}`;
                 k.classList.toggle('bg-white', aan);
                 k.classList.toggle('text-indigo-700', aan);
                 k.classList.toggle('shadow', aan);
                 k.classList.toggle('text-indigo-100', !aan);
             });
-            document.getElementById('modus-uitleg').textContent = vv
-                ? 'Kies de hoofdstukken waarvan je de werkwoorden wilt vervoegen.'
-                : 'Kies de hoofdstukken waarvan je de woordjes wilt leren.';
-            document.getElementById('optie-omgekeerd-rij').classList.toggle('hidden', vv);
+            document.getElementById('modus-uitleg').textContent = bz
+                ? 'Oefen mon, ma, mes, son, sa, ses, notre, leur ... met 30 woorden.'
+                : vv ? 'Kies de hoofdstukken waarvan je de werkwoorden wilt vervoegen.'
+                     : 'Kies de hoofdstukken waarvan je de woordjes wilt leren.';
+            document.getElementById('optie-omgekeerd-rij').classList.toggle('hidden', vv || bz);
+            document.getElementById('bezit-uitleg').classList.toggle('hidden', !bz);
+            document.getElementById('hoofdstukken-kop').classList.toggle('hidden', bz);
+            document.getElementById('hoofdstuk-lijst').classList.toggle('hidden', bz);
             document.querySelectorAll('#hoofdstuk-lijst .aantal').forEach(el => {
                 const label = el.closest('label');
                 const n = Number(vv ? el.dataset.ww : el.dataset.woorden);
@@ -475,7 +496,8 @@
                 vak.checked = aantalAan === vakjes.length;
                 vak.indeterminate = aantalAan > 0 && aantalAan < vakjes.length;
             });
-            const totaal = modus === 'vervoegen' ? gekozenWerkwoorden().length : gekozenWoorden().length;
+            const totaal = modus === 'bezittelijk' ? BEZIT_AANTAL
+                : modus === 'vervoegen' ? gekozenWerkwoorden().length : gekozenWoorden().length;
             document.getElementById('start-aantal').textContent = totaal;
             document.getElementById('start-eenheid').textContent =
                 modus === 'vervoegen' ? (totaal === 1 ? 'werkwoord' : 'werkwoorden') : 'kaarten';
@@ -519,6 +541,80 @@
             document.getElementById('stap-vervoegen').classList.toggle('verborgen', stap !== 3);
         }
 
+        // ---------------------------------------------------------------------
+        // BEZITTELIJKE VOORNAAMWOORDEN
+        // [frans, frans meervoud, geslacht, nederlands, nl meervoud, de/het]
+        // ---------------------------------------------------------------------
+        const BEZIT_WOORDEN = [
+            ['livre', 'livres', 'm', 'boek', 'boeken', 'het'],
+            ['chien', 'chiens', 'm', 'hond', 'honden', 'de'],
+            ['chat', 'chats', 'm', 'kat', 'katten', 'de'],
+            ['frère', 'frères', 'm', 'broer', 'broers', 'de'],
+            ['père', 'pères', 'm', 'vader', 'vaders', 'de'],
+            ['fils', 'fils', 'm', 'zoon', 'zonen', 'de'],
+            ['vélo', 'vélos', 'm', 'fiets', 'fietsen', 'de'],
+            ['jardin', 'jardins', 'm', 'tuin', 'tuinen', 'de'],
+            ['stylo', 'stylos', 'm', 'pen', 'pennen', 'de'],
+            ['sac', 'sacs', 'm', 'tas', 'tassen', 'de'],
+            ['cadeau', 'cadeaux', 'm', 'cadeau', 'cadeaus', 'het'],
+            ['journal', 'journaux', 'm', 'krant', 'kranten', 'de'],
+            ['portable', 'portables', 'm', 'mobieltje', 'mobieltjes', 'het'],
+            ['ami', 'amis', 'm', 'vriend', 'vrienden', 'de'],
+            ['appartement', 'appartements', 'm', 'appartement', 'appartementen', 'het'],
+            ['maison', 'maisons', 'v', 'huis', 'huizen', 'het'],
+            ['voiture', 'voitures', 'v', 'auto', "auto's", 'de'],
+            ['mère', 'mères', 'v', 'moeder', 'moeders', 'de'],
+            ['sœur', 'sœurs', 'v', 'zus', 'zussen', 'de'],
+            ['fille', 'filles', 'v', 'dochter', 'dochters', 'de'],
+            ['chambre', 'chambres', 'v', 'kamer', 'kamers', 'de'],
+            ['clé', 'clés', 'v', 'sleutel', 'sleutels', 'de'],
+            ['robe', 'robes', 'v', 'jurk', 'jurken', 'de'],
+            ['valise', 'valises', 'v', 'koffer', 'koffers', 'de'],
+            ['ville', 'villes', 'v', 'stad', 'steden', 'de'],
+            ['tasse', 'tasses', 'v', 'kopje', 'kopjes', 'het'],
+            ['chaussure', 'chaussures', 'v', 'schoen', 'schoenen', 'de'],
+            ['amie', 'amies', 'v', 'vriendin', 'vriendinnen', 'de'],
+            ['école', 'écoles', 'v', 'school', 'scholen', 'de'],
+            ['adresse', 'adresses', 'v', 'adres', 'adressen', 'het']
+        ];
+        // [nederlands, m enkelvoud, v enkelvoud, meervoud]
+        const BEZIT_PERSONEN = [
+            [['mijn'], 'mon', 'ma', 'mes'],
+            [['jouw'], 'ton', 'ta', 'tes'],
+            [['zijn', 'haar'], 'son', 'sa', 'ses'],
+            [['ons'], 'notre', 'notre', 'nos'],     // 'onze' bij de-woorden en meervoud
+            [['jullie'], 'votre', 'votre', 'vos'],
+            [['hun'], 'leur', 'leur', 'leurs']
+        ];
+        const klinker = w => /^[aeiouyéèêàâîôûœh]/i.test(w);
+
+        function maakBezitKaarten() {
+            const kaarten = [];
+            for (const [fr, frMv, gesl, nl, nlMv, deHet] of BEZIT_WOORDEN) {
+                for (const [nlVnw, m, v, mv] of BEZIT_PERSONEN) {
+                    for (const meervoud of [false, true]) {
+                        const nlWoord = nlVnw[Math.floor(Math.random() * nlVnw.length)];
+                        let vnwNl = nlWoord;
+                        if (nlWoord === 'ons' && (meervoud || deHet === 'de')) vnwNl = 'onze';
+                        let voor, antwoord;
+                        if (meervoud) {
+                            voor = `les ${frMv}`;
+                            antwoord = `${mv} ${frMv}`;
+                        } else {
+                            voor = klinker(fr) ? `l'${fr} (${gesl})` : `${gesl === 'm' ? 'le' : 'la'} ${fr}`;
+                            // vrouwelijk woord met klinker: mon/ton/son
+                            const vnw = gesl === 'm' ? m : (klinker(fr) && v !== m ? m : v);
+                            antwoord = `${vnw} ${fr}`;
+                        }
+                        const vraag = `${vnwNl} ${meervoud ? nlMv : nl}`;
+                        kaarten.push({ voor, vraag, fr: antwoord, nl: vraag, bron: 'Bezittelijk voornaamwoord' });
+                    }
+                }
+            }
+            return kaarten;
+        }
+        const BEZIT_AANTAL = BEZIT_WOORDEN.length * BEZIT_PERSONEN.length * 2;
+
         // Meldt aan GoatCounter welke oefening en welke unités worden gestart
         function telStart(soort) {
             try {
@@ -536,19 +632,20 @@
 
         function startOefenen() {
             if (modus === 'vervoegen') { telStart('vervoegen'); startVervoegen(); return; }
-            telStart('woordjes');
-            actieveWoorden = gekozenWoorden();
+            const bz = modus === 'bezittelijk';
+            telStart(bz ? 'bezittelijk' : 'woordjes');
+            actieveWoorden = bz ? maakBezitKaarten() : gekozenWoorden();
             if (actieveWoorden.length === 0) return;
-            omgekeerd = document.getElementById('optie-omgekeerd').checked;
+            omgekeerd = bz ? false : document.getElementById('optie-omgekeerd').checked;
             if (document.getElementById('optie-hussel').checked) schud(actieveWoorden);
             bewaarKeuze();
 
             huidigeIndex = 0;
             document.getElementById('fc-total').textContent = actieveWoorden.length;
             document.getElementById('fc-front-label').textContent = omgekeerd ? 'Nederlands' : 'Frans';
-            document.getElementById('fc-back-label').textContent = omgekeerd ? 'Frans' : 'Nederlands';
+            document.getElementById('fc-back-label').textContent = bz ? 'Antwoord' : omgekeerd ? 'Frans' : 'Nederlands';
             document.querySelector('[data-spreek="voor"]').classList.toggle('hidden', omgekeerd);
-            document.querySelector('[data-spreek="achter"]').classList.toggle('hidden', !omgekeerd);
+            document.querySelector('[data-spreek="achter"]').classList.toggle('hidden', !omgekeerd && !bz);
             toonKaart();
             toonStap(2);
             naarVolledigScherm();
@@ -604,8 +701,18 @@
             const w = actieveWoorden[huidigeIndex];
             document.getElementById('fc-current').textContent = huidigeIndex + 1;
             document.getElementById('fc-source-tag').textContent = w.bron;
-            document.getElementById('fc-front-text').textContent = omgekeerd ? w.nl : w.fr;
-            document.getElementById('fc-back-text').textContent = omgekeerd ? w.fr : w.nl;
+            const vraag = document.getElementById('fc-vraag'), achterVraag = document.getElementById('fc-achter-vraag');
+            if (w.vraag) {   // bezittelijke voornaamwoorden: woord + vraag, antwoord op de achterkant
+                document.getElementById('fc-front-text').textContent = w.voor;
+                document.getElementById('fc-back-text').textContent = w.fr;
+                vraag.textContent = w.vraag;
+                achterVraag.textContent = w.vraag;
+            } else {
+                document.getElementById('fc-front-text').textContent = omgekeerd ? w.nl : w.fr;
+                document.getElementById('fc-back-text').textContent = omgekeerd ? w.fr : w.nl;
+            }
+            vraag.classList.toggle('hidden', !w.vraag);
+            achterVraag.classList.toggle('hidden', !w.vraag);
             document.getElementById('voortgang').style.width = ((huidigeIndex + 1) / actieveWoorden.length * 100) + '%';
         }
 
@@ -637,7 +744,8 @@
         function speekFrans() {
             if (actieveWoorden.length === 0) return;
             // Grammaticale aanduidingen zoals (f), (m pl) of (inf être) niet uitspreken
-            speekTekst(actieveWoorden[huidigeIndex].fr
+            const w = actieveWoorden[huidigeIndex];
+            speekTekst((w.vraag && !isGedraaid ? w.voor.replace(/\s*\((m|v)\)/, '') : w.fr)
                 .replace(/\((?:f|m|m\/f|f pl|m pl|spr|pl [^)]*|inf [^)]*)\)/g, '')
                 .replace(/\s+/g, ' ').trim());
         }
