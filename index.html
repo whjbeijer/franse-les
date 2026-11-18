@@ -69,6 +69,8 @@
         html[data-thema="provence"] h1, html[data-thema="provence"] h2 { font-weight: 700; }
         html[data-thema="provence"] #fc-front-text, html[data-thema="provence"] #fc-back-text, html[data-thema="provence"] #vv-inf { font-size: 2.6rem; }
     </style>
+    <!-- Bezoekersteller (GoatCounter): telt alleen gebruik, geen cookies of persoonsgegevens -->
+    <script data-goatcounter="https://fransles.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 select-none">
 
@@ -517,8 +519,24 @@
             document.getElementById('stap-vervoegen').classList.toggle('verborgen', stap !== 3);
         }
 
+        // Meldt aan GoatCounter welke oefening en welke unités worden gestart
+        function telStart(soort) {
+            try {
+                const namen = geselecteerdeEenheden().map(id => {
+                    const i = BESCHIKBARE_BESTANDEN.find(x => x.id === id);
+                    return i.boek === 'Extra' ? i.naam : `${i.boek} ${i.naam.replace('Unité ', 'U')}`;
+                });
+                window.goatcounter?.count?.({
+                    path: `start-${soort}`,
+                    title: namen.join(', ').slice(0, 200) || 'geen',
+                    event: true
+                });
+            } catch { /* teller niet beschikbaar: oefenen gaat gewoon door */ }
+        }
+
         function startOefenen() {
-            if (modus === 'vervoegen') { startVervoegen(); return; }
+            if (modus === 'vervoegen') { telStart('vervoegen'); startVervoegen(); return; }
+            telStart('woordjes');
             actieveWoorden = gekozenWoorden();
             if (actieveWoorden.length === 0) return;
             omgekeerd = document.getElementById('optie-omgekeerd').checked;
