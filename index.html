@@ -193,7 +193,7 @@
 
                     <!-- Achterkant -->
                     <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col justify-between items-center p-6 text-center kaart-achter bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-3xl">
-                        <span class="text-xs font-medium text-indigo-200 bg-indigo-800/40 px-3 py-1 rounded-full">Vertaling</span>
+                        <span class="text-xs font-medium text-indigo-200 bg-indigo-800/40 px-3 py-1 rounded-full" id="fc-achter-tag">Vertaling</span>
                         <div class="my-auto flex flex-col items-center w-full">
                             <div class="flex items-center gap-1.5 mb-4">
                                 <span id="fc-back-label" class="text-xs font-bold uppercase tracking-widest text-indigo-200">Nederlands</span>
@@ -644,6 +644,7 @@
             document.getElementById('fc-total').textContent = actieveWoorden.length;
             document.getElementById('fc-front-label').textContent = omgekeerd ? 'Nederlands' : 'Frans';
             document.getElementById('fc-back-label').textContent = bz ? 'Antwoord' : omgekeerd ? 'Frans' : 'Nederlands';
+            document.getElementById('fc-achter-tag').textContent = bz ? 'Antwoord' : 'Vertaling';
             document.querySelector('[data-spreek="voor"]').classList.toggle('hidden', omgekeerd);
             document.querySelector('[data-spreek="achter"]').classList.toggle('hidden', !omgekeerd && !bz);
             toonKaart();
